@@ -1,4 +1,4 @@
-package com.catseye.patternComponents.gridGenerators;
+package com.catseye.patternComponents.gridGenerators.regularGrids;
 
 public enum GridType {
 	 HEXAGON, TRIANGLE, SQUARE, VORONOI, DELAUNAY;

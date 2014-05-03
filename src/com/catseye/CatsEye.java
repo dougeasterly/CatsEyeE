@@ -1,5 +1,7 @@
 package com.catseye;
 
+import java.awt.Frame;
+
 import com.catseye.gui.GUI;
 import com.catseye.patternComponents.*;
 
@@ -13,13 +15,28 @@ public class CatsEye extends PApplet{
 	
 	public GUI gui;
 	
+	
+	public void init() {
+		
+		super.init();
+		
+        Frame[] frames = Frame.getFrames();
+        for (Frame frame : frames) {
+            frame.setMenuBar(null);
+            frame.pack();
+        }
+        
+    }
+	
+	
 	public void setup(){
 	  
 	  p5 = this;
 		
-	  size(1000,1000, P2D);
+	  size(1000, 1000, P2D);
 	 
 	  gui = new GUI();
+	  
 	  
 	}
 	

@@ -1,4 +1,4 @@
-package com.catseye.patternComponents.gridGenerators;
+package com.catseye.patternComponents.gridGenerators.irregularGrids;
 
 
 /*---------------------------------------------------------------------------------------------
@@ -12,18 +12,15 @@ package com.catseye.patternComponents.gridGenerators;
  *---------------------------------------------------------------------------------------------*/
 
 import processing.core.*;
-
 import toxi.geom.*;
 import toxi.geom.mesh2d.*;
-import toxi.util.*;
 import toxi.util.datatypes.*;
-import toxi.processing.*;
 
 import java.util.List;
 import java.util.ArrayList;
 
+import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.catseye.patternComponents.polygonGenerators.P2DIrregularPolygonGenerator;
-
 
 
 public class VoronoiDelaunayGrid extends TileGrid {

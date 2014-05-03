@@ -1,9 +1,10 @@
-package com.catseye.gui;
+package com.catseye.gui.windows;
 
 
 import java.io.File;
 
 import com.catseye.CatsEye;
+import com.catseye.gui.GUI;
 import com.catseye.util.SVGLoader;
 
 import processing.core.*;
@@ -21,14 +22,13 @@ import controlP5.*;
 *
 *---------------------------------------------------------------------------------------------*/
 
-public class ImageSelectionWindow extends PApplet {
+public class ImageSelectionApp extends GUIApp {
 	
   GUI parent;
   ControlP5 cp5;
   
   PImage previewImage, textureImage;
   
-  private int width, height;
   private PVector textureClipRectTL, textureClipRectBR;
   private PVector imageOffset;
   
@@ -52,19 +52,19 @@ public class ImageSelectionWindow extends PApplet {
   //------------------------------CONSTRUCTORS/SETUP-----------------------------------
   
   @SuppressWarnings("unused")
-  private ImageSelectionWindow() {
+  private ImageSelectionApp() {
   }
 
 
-  public ImageSelectionWindow(GUI i_Parent, int i_width, int i_height) {
+  public ImageSelectionApp(GUI i_Parent, int i_width, int i_height) {
     parent = i_Parent;
-    this.width = i_width;
-    this.height = i_height;
+    this.appWidth = i_width;
+    this.appHeight = i_height;
   }
 
   
   public void setup() {
-    size(this.width, this.height);
+    size(this.appWidth, this.appHeight);
     frameRate(25);
    
     imageOffset = new PVector(0,0);
@@ -84,17 +84,17 @@ public class ImageSelectionWindow extends PApplet {
     previewImage = textureImage.get();
     
     if(previewImage.width > previewImage.height){
-       previewImage.resize(this.width-40, 0);
+       previewImage.resize(this.appWidth-40, 0);
     }
     else{
-       previewImage.resize(0,this.height-150);
+       previewImage.resize(0,this.appHeight-150);
     }
    
     scaleFactor = previewImage.width/(i_img.width+0.0f); 
     
     imageOffset = new PVector();
-    imageOffset.x = this.width/2-previewImage.width/2;
-    imageOffset.y = this.height/2-previewImage.height/2;
+    imageOffset.x = this.appWidth/2-previewImage.width/2;
+    imageOffset.y = this.appHeight/2-previewImage.height/2;
     
     setTextureClipRect(new PVector(0,0), new PVector(previewImage.width, previewImage.height, 0));
     defaultTriangularSelection();

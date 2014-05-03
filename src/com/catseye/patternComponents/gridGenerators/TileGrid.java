@@ -1,5 +1,9 @@
 package com.catseye.patternComponents.gridGenerators;
 
+import java.io.Console;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import processing.core.*;
 
 import com.catseye.CatsEye;
@@ -205,6 +209,79 @@ public class TileGrid {
     } 
 
     return gridPreviewImage;
+  }
+  
+  //this method can be overwritten if child classes need to be setup in order to generate grid preview
+  public PImage getMiniGridImage(PVector i_size) {
+	return getGridImage(); 
+  }
+  
+  
+  @SuppressWarnings("unchecked")
+  public static TileGrid getGridFromClassString(String i_subClassName){
+	 
+	  try{
+			 Class<TileGrid> myClass = (Class<TileGrid>)Class.forName(i_subClassName);
+	      	 Constructor<TileGrid> construct = myClass.getConstructor();
+	      	 TileGrid g = (TileGrid)construct.newInstance();
+	      	 
+	      	 return g;
+		  }
+		  catch(ClassNotFoundException e){System.out.println(e.getMessage());}
+		  catch(NoSuchMethodException e){System.out.println(e.getMessage());}
+		  catch(IllegalAccessException e){System.out.println(e.getMessage());}
+		  catch(InstantiationException e){System.out.println(e.getMessage());}
+		  catch(InvocationTargetException e){System.out.println(e.getMessage());}
+	  
+	  return null;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static TileGrid getGridFromClassString(String i_subClassName, TileGrid i_oldGrid){
+	 
+	  try{
+			 Class<TileGrid> tileGridClass = (Class<TileGrid>)Class.forName("com.catseye.patternComponents.gridGenerators.TileGrid");
+		     Class<TileGrid> myClass = (Class<TileGrid>)Class.forName(i_subClassName);
+	      	 
+			 Constructor<TileGrid> construct = myClass.getConstructor(tileGridClass);
+	      	 TileGrid g = (TileGrid)construct.newInstance(i_oldGrid);
+	      	 
+	      	 return g;
+		  }
+		  catch(ClassNotFoundException e){System.out.println(e.getMessage());}
+		  catch(NoSuchMethodException e){System.out.println(e.getMessage());}
+		  catch(IllegalAccessException e){System.out.println(e.getMessage());}
+		  catch(InstantiationException e){System.out.println(e.getMessage());}
+		  catch(InvocationTargetException e){System.out.println(e.getMessage());}
+	  
+	  return null;
+  }
+  
+
+  
+  public static PImage getGridMiniPreview(String i_subClassName, PVector i_size){
+	  
+		 
+      TileGrid g = getGridFromClassString(i_subClassName);
+      
+      if(g != null){
+    	g.setCellRadius(i_size.x/4.0f);
+      	g.setRenderSize(i_size);
+      	g.setPreviewSize(i_size);
+      	return g.getMiniGridImage(i_size);
+      }
+	 
+
+	  PGraphics broken = CatsEye.p5.createGraphics((int) i_size.x, (int) i_size.y);
+	  broken.beginDraw();
+	  broken.stroke(255,255,0);
+	  
+	  for(int i = 0; i < PApplet.max(i_size.x, i_size.y)*2 ; i+=5)
+		  broken.line(0, i, i, 0);
+	  
+	  broken.endDraw();
+	  return broken; 
+	  
   }
   
   public void regenerateGrid(){

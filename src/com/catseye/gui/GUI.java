@@ -1,19 +1,18 @@
 package com.catseye.gui;
-/*---------------------------------------------------------------------------------------------
-*
-*    GUI FILE, due to limitations with the processing IDE this hasn't been put into a class as of yet
-*    
-*    creates GUI and controls 
-*
-*    Ben Jack 12/4/2014 
-*
-*---------------------------------------------------------------------------------------------*/
-
 
 import processing.core.*;
 
 import com.catseye.CatsEye;
+import com.catseye.gui.windows.GUIWindowManager;
+import com.catseye.gui.windows.ImageSelectionApp;
+import com.catseye.gui.windows.VoronoiDelaunayApp;
+import com.catseye.gui.windows.GridSelectionApp;
 import com.catseye.patternComponents.gridGenerators.*;
+import com.catseye.patternComponents.gridGenerators.irregularGrids.VoronoiDelaunayGrid;
+import com.catseye.patternComponents.gridGenerators.regularGrids.GridType;
+import com.catseye.patternComponents.gridGenerators.regularGrids.HexGrid;
+import com.catseye.patternComponents.gridGenerators.regularGrids.SquareGrid;
+import com.catseye.patternComponents.gridGenerators.regularGrids.TriGrid;
 
 import java.awt.Frame;
 import java.awt.BorderLayout;
@@ -27,13 +26,17 @@ public class GUI{
   
   //--------------------GLOBAL VARIABLES-------------------
 
+  GUIWindowManager windowManager;
+	
   public int currentGridType;
   
   Frame ImageWindowFrame, vdGUIFrame;
   
   private ControlP5 cp5;
-  private ImageSelectionWindow imageWindow;
-  private VoronoiDelaunayGUIWindow voronoiDelaunayWindow;
+  
+  private ImageSelectionApp imageWindow;
+  private VoronoiDelaunayApp voronoiDelaunayWindow;
+  private GridSelectionApp gridSelector;
   
   RadioButton gridTypeButton;
   Textfield printWidthField, printHeightField;
@@ -46,7 +49,7 @@ public class GUI{
   private boolean drawGrid = false;
   private boolean triggerGeneration = false;
   
-  private PImage textureImage, maskImage, backgroundImage;
+  private PImage maskImage, backgroundImage;
   
   private TileGrid gridGenerator;
   private VoronoiDelaunayGrid irregularGridGenerator;
@@ -68,15 +71,23 @@ public class GUI{
   
     gridControlGroup();
     globalControlGroup();
-  
-    imageWindow = addImageWindow("patternImage", 600, 600);
-    voronoiDelaunayWindow = addVdGUIWindow("voronoi controls", 600, 600);
+    
+	gridGenerator = new HexGrid();
+	irregularGridGenerator = new VoronoiDelaunayGrid();
+    
+	imageWindow = new ImageSelectionApp(this, 600, 600);
+	voronoiDelaunayWindow = new VoronoiDelaunayApp(this, 600, 600);
+	gridSelector = new GridSelectionApp(this, 600, 600);
+	
+    windowManager = new GUIWindowManager();
+    windowManager.addWindow("image selection", imageWindow, true);
+    windowManager.addWindow("grid selection", gridSelector, true);
+    windowManager.addWindow("voronoi controls", voronoiDelaunayWindow);
+    
     toggleWindows(0);
     
     backgroundImage = createCheckerBackground();
     
-	gridGenerator = new HexGrid();
-	irregularGridGenerator = new VoronoiDelaunayGrid();
   }
   
  
@@ -103,7 +114,7 @@ public class GUI{
     
     PImage previewImage = gridGenerator.getUnitImage();
     CatsEye.p5.image(previewImage, 20, 500);
-
+    
   }
   
   
@@ -262,41 +273,6 @@ public class GUI{
   //although some of these are public due to controlP5 needs or otherwise, they shouldn't be used 
   
   
-  /*
-  *   creates image selection GUI window
-  */
-
-  private ImageSelectionWindow addImageWindow(String theName, int theWidth, int theHeight) {
-    ImageWindowFrame = new Frame(theName);
-    ImageSelectionWindow p = new ImageSelectionWindow(this, theWidth, theHeight);
-    ImageWindowFrame.add(p);
-    p.init();
-    ImageWindowFrame.setTitle(theName);
-    ImageWindowFrame.setSize(theWidth, theHeight);
-    ImageWindowFrame.setLocation(0, 0);
-    ImageWindowFrame.setResizable(false);
-    ImageWindowFrame.setVisible(true);
-    return p;
-  }
-  
-  
-  /*
-  *   creates voronoi/delaunay grid interface window
-  */
-
-  private VoronoiDelaunayGUIWindow addVdGUIWindow(String theName, int theWidth, int theHeight) {
-    vdGUIFrame = new Frame(theName);
-    VoronoiDelaunayGUIWindow p = new VoronoiDelaunayGUIWindow(this, irregularGridGenerator, theWidth, theHeight);
-    vdGUIFrame.add(p);
-    p.init();
-    vdGUIFrame.setTitle(theName);
-    vdGUIFrame.setSize(theWidth, theHeight);
-    vdGUIFrame.setLocation(0, 650);
-    vdGUIFrame.setResizable(false);
-    vdGUIFrame.setVisible(true);
-    return p;
-  }
-  
   
   
   /*
@@ -363,11 +339,12 @@ public class GUI{
   
   private void generatePattern(){
    
+	gridGenerator = gridSelector.getTileGrid();
+	  
     printWidthField.submit();
     printHeightField.submit();
     gridGenerator.setTexture(imageWindow.getCropSection());
     gridGenerator.setTextureCoords(imageWindow.getTextureCoords());
-    gridGenerator.setCellRadius(cellRadius);
   
     gridGenerator.generate();
     
@@ -397,14 +374,13 @@ public class GUI{
     case 0:
     case 1:
     case 2:
-        vdGUIFrame.setVisible(false);
+        windowManager.setVisible("voronoi controls",false);
     break;
     
     case 3:
     case 4:
-        vdGUIFrame.setVisible(true);
-    break;
-    
+    	windowManager.setVisible("voronoi controls",true);
+    	break;
     default:
     break;
     

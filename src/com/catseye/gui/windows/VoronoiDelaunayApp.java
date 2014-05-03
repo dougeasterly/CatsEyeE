@@ -1,11 +1,12 @@
-package com.catseye.gui;
+package com.catseye.gui.windows;
 
 import java.util.List;
 import java.util.ArrayList;
 
 import com.catseye.CatsEye;
-import com.catseye.patternComponents.gridGenerators.GridType;
-import com.catseye.patternComponents.gridGenerators.VoronoiDelaunayGrid;
+import com.catseye.gui.GUI;
+import com.catseye.patternComponents.gridGenerators.irregularGrids.VoronoiDelaunayGrid;
+import com.catseye.patternComponents.gridGenerators.regularGrids.GridType;
 
 import processing.core.*;
 import controlP5.*;
@@ -13,7 +14,7 @@ import toxi.geom.*;
 import toxi.geom.mesh2d.Voronoi;
 
 
-public class VoronoiDelaunayGUIWindow extends PApplet {
+public class VoronoiDelaunayApp extends GUIApp {
 
   private static final long serialVersionUID = 3904042928204019888L;
 	
@@ -24,7 +25,6 @@ public class VoronoiDelaunayGUIWindow extends PApplet {
   GUI parent;
 
   private int randomCount;
-  private int myWidth, myHeight;
  // private VoronoiDelaunayGrid vdGrid;
 
   private GridType gridType;
@@ -35,15 +35,14 @@ public class VoronoiDelaunayGUIWindow extends PApplet {
 
   
   @SuppressWarnings("unused")
-  private VoronoiDelaunayGUIWindow() {
+  private VoronoiDelaunayApp() {
   }
 
 
-  public VoronoiDelaunayGUIWindow(GUI i_parent, VoronoiDelaunayGrid i_vdGrid, int i_width, int i_height) {
+  public VoronoiDelaunayApp(GUI i_parent, int i_width, int i_height) {
     parent = i_parent;
-//    vdGrid = i_vdGrid;
-    myWidth = i_width;
-    myHeight = i_height;
+    appWidth = i_width;
+    appHeight = i_height;
 
     voronoi = new Voronoi();
     clip=new SutherlandHodgemanClipper(new Rect(0, 0, i_width, i_height));
@@ -51,7 +50,7 @@ public class VoronoiDelaunayGUIWindow extends PApplet {
 
 
   public void setup() {
-    size(myWidth, myHeight); 
+    size(appWidth, appHeight); 
 
     createGuiControls();  
     points = new  ArrayList<PVector>();
@@ -81,7 +80,7 @@ public class VoronoiDelaunayGUIWindow extends PApplet {
    ArrayList<PVector> normalized = new ArrayList<PVector>();
    
    for(PVector pt : points){
-     normalized.add(new PVector(pt.x/(myWidth+0.0f), pt.y/(myHeight+0.0f))); 
+     normalized.add(new PVector(pt.x/(appWidth+0.0f), pt.y/(appHeight+0.0f))); 
    } 
     
    return normalized;

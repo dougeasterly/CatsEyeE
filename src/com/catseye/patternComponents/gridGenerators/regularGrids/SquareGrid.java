@@ -1,4 +1,6 @@
-package com.catseye.patternComponents.gridGenerators;
+package com.catseye.patternComponents.gridGenerators.regularGrids;
+
+import com.catseye.patternComponents.gridGenerators.TileGrid;
 
 import processing.core.PGraphics;
 
