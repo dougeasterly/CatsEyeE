@@ -260,7 +260,6 @@ public class TileGrid {
 
   
   public static PImage getGridMiniPreview(String i_subClassName, PVector i_size){
-	  
 		 
       TileGrid g = getGridFromClassString(i_subClassName);
       
@@ -269,19 +268,18 @@ public class TileGrid {
       	g.setRenderSize(i_size);
       	g.setPreviewSize(i_size);
       	return g.getMiniGridImage(i_size);
-      }
+      }else{
 	 
-
-	  PGraphics broken = CatsEye.p5.createGraphics((int) i_size.x, (int) i_size.y);
-	  broken.beginDraw();
-	  broken.stroke(255,255,0);
-	  
-	  for(int i = 0; i < PApplet.max(i_size.x, i_size.y)*2 ; i+=5)
-		  broken.line(0, i, i, 0);
-	  
-	  broken.endDraw();
-	  return broken; 
-	  
+		  PGraphics broken = CatsEye.p5.createGraphics((int) i_size.x, (int) i_size.y);
+		  broken.beginDraw();
+		  broken.stroke(255,255,0);
+		  
+		  for(int i = 0; i < PApplet.max(i_size.x, i_size.y)*2 ; i+=5)
+			  broken.line(0, i, i, 0);
+		  
+		  broken.endDraw();
+		  return broken; 
+      }  
   }
   
   public void regenerateGrid(){
