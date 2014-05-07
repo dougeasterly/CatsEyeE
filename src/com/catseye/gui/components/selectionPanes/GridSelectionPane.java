@@ -21,6 +21,7 @@ public class GridSelectionPane {
 	protected ArrayList<GridSelectionButton> buttons;
 	
 	protected ControlP5 cp5;
+	protected GridSelectionButton selected_btn;
 	
 	
 	public GridSelectionPane(PApplet i_parent, PVector i_size, ControlP5 i_cp5){	
@@ -51,14 +52,15 @@ public class GridSelectionPane {
 	
 	public void scroll(PVector i_amount){
 		
+		
+		
 		int rows = PApplet.ceil(buttons.size()/(columns+0.0f));
 		
-		scrollOffset.y += i_amount.y;
-		//scrollOffset.x += i_amount.x;
-		
-		scrollOffset.y = PApplet.constrain(scrollOffset.y, -((rows*(BUTTONSIZE.y+BUTTONSPACE.y)+BUTTONSPACE.y*2) - size.y), 0);
-		//scrollOffset.x = PApplet.constrain(scrollOffset.x, -((rows*(BUTTONSIZE.x+BUTTONSPACE.x)+BUTTONSPACE.x*2) - size.x), 0);
-		
+		if((rows*(BUTTONSIZE.y+BUTTONSPACE.y)+BUTTONSPACE.y*2) > size.y){
+			scrollOffset.y += i_amount.y;
+			
+			scrollOffset.y = PApplet.constrain(scrollOffset.y, -((rows*(BUTTONSIZE.y+BUTTONSPACE.y)+BUTTONSPACE.y*2) - size.y), 0);
+		}
 	}
 	
 	public void drawButtons(){	
@@ -72,8 +74,15 @@ public class GridSelectionPane {
 	public String click(PVector i_point){
 	
 		for(GridSelectionButton i : buttons){
-			if(i.isPtOver(i_point, scrollOffset))
+			if(i.isPtOver(i_point, scrollOffset)){
+				
+				if(selected_btn != null)
+					selected_btn.setSelected(false);
+				
+				i.setSelected(true);
+				selected_btn = i;
 				return i.getType();
+			}
 		}
 		
 		return null;

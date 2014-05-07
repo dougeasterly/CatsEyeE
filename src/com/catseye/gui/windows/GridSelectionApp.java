@@ -142,12 +142,12 @@ public class GridSelectionApp extends GUIApp {
 	   public void mousePressed(){
 		  
 		  String selectedGrid = currentGridSelection.click(new PVector(mouseX, mouseY - 180));
-		  println(selectedGrid);
 		  
 		  if(selectedGrid != null){
 			  currentGrid = TileGrid.getGridFromClassString(selectedGrid, currentGrid);
 		  }else{
-			  scrolling = true;
+			  if(mouseY > 180)
+				  scrolling = true;
 		  }
 		  
 	   }
@@ -244,6 +244,8 @@ public class GridSelectionApp extends GUIApp {
 		.plugTo(this, "loadMask");
 		
 	}
+	
+	
 	
 
 	  

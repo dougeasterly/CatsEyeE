@@ -4,17 +4,32 @@ import processing.core.*;
 
 public class GridSelectionButton {
 	
+	private static PGraphics highlight;
+	
 	private PApplet parent;
 	
 	private PVector size, position;
 	private PGraphics buttonImage;
 	private String gridType;
+	private boolean selected;
 	
 	public GridSelectionButton(PApplet i_parent, String i_gridType, PVector i_size, PVector i_position, PImage i_previewImage){
+		
+		
+		if(highlight == null){
+			highlight = i_parent.createGraphics((int)i_size.x, (int)i_size.y);
+			highlight.beginDraw();
+			highlight.fill(0,255,0,40);
+			highlight.stroke(0, 255, 0);
+			highlight.strokeWeight(3);
+			highlight.rect(1.5f, 1.5f, i_size.x-3f, i_size.y-3f);
+			highlight.endDraw();			
+		}
 		
 		parent = i_parent;
 		gridType = i_gridType;
 		position = i_position;
+		selected = false;
 
 		size = i_size;
 		buttonImage = i_parent.createGraphics((int)i_size.x, (int)i_size.y);
@@ -27,6 +42,10 @@ public class GridSelectionButton {
 		buttonImage.rect(1, 1, i_size.x-2, i_size.y-2);
 		buttonImage.endDraw();
 		
+	}
+	
+	public void setSelected(boolean i_selected){
+		selected = i_selected;
 	}
 	
 	public String getType(){
@@ -49,6 +68,9 @@ public class GridSelectionButton {
 	public void draw(PVector i_offset){
 		
 		parent.image(buttonImage, position.x+i_offset.x, position.y+i_offset.y);
+		if(selected){
+			parent.image(highlight, position.x+i_offset.x, position.y+i_offset.y);
+		}
 		
 	}
 	
