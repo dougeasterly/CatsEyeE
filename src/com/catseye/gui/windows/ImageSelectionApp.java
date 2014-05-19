@@ -4,7 +4,6 @@ package com.catseye.gui.windows;
 import java.io.File;
 import java.awt.Color;
 
-
 import com.catseye.CatsEye;
 import com.catseye.gui.GUI;
 import com.catseye.util.SVGLoader;
@@ -57,7 +56,7 @@ public class ImageSelectionApp extends GUIApp {
   private boolean svgInit = false;
   private PVector mouseDragOffsetTL, mouseDragOffsetBR;
   
-  private Toggle triSelectBtn;
+  private Button triSelectBtn;
   private boolean useTriSelect = false;
   private int triSelectedCorner;
   private PVector[] triangularSelection = {new PVector(0,0), new PVector(0,1), new PVector(1,1)};
@@ -127,6 +126,10 @@ public class ImageSelectionApp extends GUIApp {
   public void hideTriSelectButton(){
     triSelectBtn.hide();
     useTriSelect = false;
+  }
+  
+  public void toggleTriSelect(){
+	  useTriSelect = !useTriSelect;
   }
   
   
@@ -538,16 +541,17 @@ public class ImageSelectionApp extends GUIApp {
 
   private void removeGuiControlsSVG(){
 		if(svgList!=null){   
-	  svgList.remove();
-	     bgColorButton.remove();
-	    fillColorButton.remove();
-	    strokeColorButton.remove();
-	    strokeWeightBox.remove();
-	    svgControls = false;
+			svgList.remove();
+			svgList = null;
+	    	bgColorButton.remove();
+	    	fillColorButton.remove();
+	    	strokeColorButton.remove();
+	    	strokeWeightBox.remove();
+	    	svgControls = false;
 		}
   }
   
-  public void fc() {
+  public void SVGfillColour() {
 	    String t_fn = fillColorButton.getName();
 	    svgTile.colorSelect(t_fn, currentSvgChild);
     	final Color ff = svgTile.getFillColor(currentSvgChild);
@@ -556,7 +560,8 @@ public class ImageSelectionApp extends GUIApp {
 	    chosenImage = svgTile.updateSvgView(); // get updated SVG
    	    setImage(chosenImage); // draw updated svg
 	    }
-  public void sc() {
+  
+  public void SVGstrokeColour() {
 	  CatsEye.p5.println(strokeColorButton.getName());
 	    String t_sn = strokeColorButton.getName();
 	    svgTile.colorSelect(t_sn, currentSvgChild);
@@ -603,11 +608,13 @@ if(svgList != null){
 	    fillColorButton = cp5.addButton("fc")
 	    	    .setPosition(452,20)
 	    	     .setSize(20, 20)
-	    	     ;
+	    	     .plugTo(this, "SVGfillColour");
+	    
 	    strokeColorButton = cp5.addButton("sc")
 	    	    .setPosition(474,20)
 	    	     .setSize(20, 20)
-	    	  	    	     ;
+	    	     .plugTo(this, "SVGstrokeColour");
+	    
 	    strokeWeightBox = cp5.addNumberbox("sw")
 	     .setPosition(498,20)
 	     .setSize(26,20)
@@ -619,9 +626,9 @@ if(svgList != null){
 
 	} 
    // svgControls = true;
-	    for (int i=0;i<t_listSize;i++) {
-		    svgList.addItem("child "+i, i);
-		  }
+	for (int i=0;i<t_listSize;i++) {
+		svgList.addItem("child "+i, i);
+	}
 	  
 }
 
@@ -644,11 +651,12 @@ private void createGuiControls(){
      .setSize(49, 20)
       .plugTo(this, "randomizeMarqueeSelection");
    
-    cp5.addButton("tri/rect")
+    triSelectBtn = cp5.addButton("tri/rect")
     .setPosition(186,20)
-     .setSize(45, 20)
-     // .plugTo(this, "randomizeMarqueeSelection")
-     ;
+    .setSize(45, 20)
+    .plugTo(this, "toggleTriSelect")
+    .hide();
+    
     cp5.addButton("save crop")
     .setPosition(238,20)
      .setSize(49, 20)
@@ -660,11 +668,7 @@ private void createGuiControls(){
      .setSize(49, 20)
      // .plugTo(this, "randomizeMarqueeSelection")
      ;
-              
-    triSelectBtn = cp5.addToggle("useTriSelect")
-      .setPosition(this.width-60, this.height-60)
-        .setSize(20, 20)
-          .hide();
+
     
   }
   
