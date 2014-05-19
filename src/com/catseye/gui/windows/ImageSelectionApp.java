@@ -2,6 +2,8 @@ package com.catseye.gui.windows;
 
 
 import java.io.File;
+import java.awt.Color;
+
 
 import com.catseye.CatsEye;
 import com.catseye.gui.GUI;
@@ -31,23 +33,35 @@ public class ImageSelectionApp extends GUIApp {
   
   private PVector textureClipRectTL, textureClipRectBR;
   private PVector imageOffset;
+  private PImage chosenImage; 
+  SVGLoader svgTile;
   
   private float svgScale;
   
   private int clipBoxWidth, clipBoxHeight, clipBoxX, clipBoxY;
   private float scaleFactor;
   
-  private Numberbox box_width, box_height, box_x, box_y;
+ // private Numberbox box_width, box_height, box_x, box_y;
+  //private  CallbackListener cb;
   private float controlHandleRadius = 15; 
   
+  private DropdownList svgList;
+  private int currentSvgChild;
+  private Button bgColorButton,fillColorButton, strokeColorButton;
+  private Numberbox strokeWeightBox;
+  public float sw;// cp5 variable automatically updated by changes to strokeWeightBox
+  private int SVGlistSize;
+  
   private boolean dragging, resizing;
+  private boolean svgControls = false;
+  private boolean svgInit = false;
   private PVector mouseDragOffsetTL, mouseDragOffsetBR;
   
   private Toggle triSelectBtn;
   private boolean useTriSelect = false;
   private int triSelectedCorner;
   private PVector[] triangularSelection = {new PVector(0,0), new PVector(0,1), new PVector(1,1)};
-  
+  //private int SVGlistSize;
   
   //------------------------------CONSTRUCTORS/SETUP-----------------------------------
   
@@ -98,6 +112,7 @@ public class ImageSelectionApp extends GUIApp {
     
     setTextureClipRect(new PVector(0,0), new PVector(previewImage.width, previewImage.height, 0));
     defaultTriangularSelection();
+
   }
   
   
@@ -160,9 +175,15 @@ public class ImageSelectionApp extends GUIApp {
 
   public void draw() {
       background(180);
-      
+      // need some kind of listener created w svgList group
+//      if(svgList.isOpen() == true){
+//    	  dragging = false;
+//      }
+    	  
       if(previewImage != null){
        image(previewImage, imageOffset.x, imageOffset.y); 
+
+       
       }
       
       if(!useTriSelect)
@@ -172,7 +193,7 @@ public class ImageSelectionApp extends GUIApp {
       
       textSize(14);
       fill(0);
-      
+
       if(parent.getRenderMode() == P2D)
         text("P2D rendering", 20, this.height-48);
       else
@@ -298,10 +319,7 @@ public class ImageSelectionApp extends GUIApp {
     clipBoxHeight = (int)abs(textureClipRectTL.y-textureClipRectBR.y);
     clipBoxX = (int)min(textureClipRectTL.x,textureClipRectBR.x);
     clipBoxY = (int)min(textureClipRectTL.y,textureClipRectBR.y);
-    box_x.setValue(clipBoxX);
-    box_y.setValue(clipBoxY);
-    box_width.setValue(clipBoxWidth);
-    box_height.setValue(clipBoxHeight); 
+
   }
   
   private void dragTriangleSelection(PVector mousePos){
@@ -374,8 +392,7 @@ public class ImageSelectionApp extends GUIApp {
 
     clipBoxX = (int)(x);
     clipBoxY = (int)(y);
-    box_x.setValue(clipBoxX);
-    box_y.setValue(clipBoxY);
+
     
     setTextureClipRect(new PVector(x,y), new PVector(x+wdth, y+hght));
     
@@ -421,6 +438,7 @@ public class ImageSelectionApp extends GUIApp {
   public void loadImageEvent(int i_GUIJunk) {
     println("loading image");
     selectInput("Select an image", "loadTextureImage");
+    
   }
   
   public void loadTextureImage(File selection) {
@@ -430,21 +448,28 @@ public class ImageSelectionApp extends GUIApp {
     } 
     else {
       
-      PImage chosenImage; 
+  
       String path = selection.getAbsolutePath();
       String suffix = path.substring(path.length()-3);
   
+      // if the file is svg, load the image and initialize svg controls
       if (suffix.equals("svg")) {
+    	  svgInit = false;
+    	//  svgInit = false;// reset to false, in case an svg was already loaded
         PShape iFile =  loadShape(path);
-        SVGLoader svgTile = new SVGLoader(iFile, svgScale);
-        chosenImage = svgTile.drawTile();
+        svgTile = new SVGLoader(iFile, svgScale);
+        SVGlistSize = svgTile.getChildrenNum();
+        
+        createGuiControlsSVG(SVGlistSize);        
+        chosenImage = svgTile.drawRaw();         
       }
       else {
         chosenImage = loadImage(path);
+       if(svgList!=null)// remove the svg controls if they exist
+        removeGuiControlsSVG();
       }
-  
-      this.setImage(chosenImage);
-     
+  setImage(chosenImage);
+
     }
   }
   
@@ -454,14 +479,49 @@ public class ImageSelectionApp extends GUIApp {
   */
   
   public void controlEvent(ControlEvent theEvent) {
-    if(theEvent.isFrom(box_x) || theEvent.isFrom(box_y) || theEvent.isFrom(box_width) || theEvent.isFrom(box_height)) {
-       setTextureClipRect(new PVector(clipBoxX,clipBoxY,0), new PVector(clipBoxX+clipBoxWidth,clipBoxY+clipBoxHeight,0));
-       constrainTextureClipRect();
-    }else if(theEvent.isFrom(triSelectBtn)){
+	  //strokeWeightBox update has to go here - behave differently than buttons
+	 if(theEvent.isFrom(strokeWeightBox)){
+	  CatsEye.p5.println("what"); // establish layer
+	    svgTile.setStrokeWeight(sw, currentSvgChild);
+  	    chosenImage = svgTile.updateSvgView(); // get updated SVG
+ 	    setImage(chosenImage); // draw updated svg
+	 }
+	  // check for cp5 event coming from the svgList dropdown menu
+	  // init greyscale here, because original svg color is destroyed when the controls are activated
+	  if (theEvent.isFrom(svgList)){
+		  //initialize - grayscale image and buttons
+		  if(svgInit == false){
+		    	 currentSvgChild = (int)(theEvent.getGroup().getValue()); // establish layer
+				 chosenImage = svgTile.init(); // get the original SVG
+				 // setup SVG controls
+				 bgColorButton.setColorBackground((int)(svgTile.getBGcolor()));
+			     final Color ff = svgTile.getFillColor(currentSvgChild);
+			     final int tff = CatsEye.p5.color(ff.getRed(), ff.getGreen(), ff.getBlue());
+				 fillColorButton.setColorBackground((int)(tff));
+				 final Color sf = svgTile.getStrokeColor(currentSvgChild);
+			     final int tsf = CatsEye.p5.color(sf.getRed(), sf.getGreen(), sf.getBlue());
+				  strokeColorButton.setColorBackground((int)(tsf));
+		    	 setImage(chosenImage); // draw the original svg
+		    	 svgInit = true;
+		  }else{ // for resetting dropdown menu and buttons based on child layer color
+		    	 currentSvgChild = (int)(theEvent.getGroup().getValue()); // establish layer
+				 //based on the dropdown, get and set the current layer values for the svg gui 
+		    	 bgColorButton.setColorBackground((int)(svgTile.getBGcolor()));
+			     final Color ff = svgTile.getFillColor(currentSvgChild);
+			     final int tff = CatsEye.p5.color(ff.getRed(), ff.getGreen(), ff.getBlue());
+				 fillColorButton.setColorBackground((int)(tff));
+				 final Color sf = svgTile.getStrokeColor(currentSvgChild);
+			     final int tsf = CatsEye.p5.color(sf.getRed(), sf.getGreen(), sf.getBlue());
+				  strokeColorButton.setColorBackground((int)(tsf));
+		  }
+	    	
+	  }else if(theEvent.isFrom(triSelectBtn)){
       defaultTriangularSelection();
-    }
+    } 
   }
+
   
+
   
   private void defaultTriangularSelection(){
    
@@ -472,54 +532,134 @@ public class ImageSelectionApp extends GUIApp {
   }
   
   //--------------------------------------------ACTUAL GUI CREATION--------------------------------------------------------
+ 
+
+  @SuppressWarnings("deprecation")
+
+  private void removeGuiControlsSVG(){
+		if(svgList!=null){   
+	  svgList.remove();
+	     bgColorButton.remove();
+	    fillColorButton.remove();
+	    strokeColorButton.remove();
+	    strokeWeightBox.remove();
+	    svgControls = false;
+		}
+  }
   
-  private void createGuiControls(){
+  public void fc() {
+	    String t_fn = fillColorButton.getName();
+	    svgTile.colorSelect(t_fn, currentSvgChild);
+    	final Color ff = svgTile.getFillColor(currentSvgChild);
+    	final int tff = CatsEye.p5.color(ff.getRed(), ff.getGreen(), ff.getBlue());
+	    fillColorButton.setColorBackground((int)(tff));
+	    chosenImage = svgTile.updateSvgView(); // get updated SVG
+   	    setImage(chosenImage); // draw updated svg
+	    }
+  public void sc() {
+	  CatsEye.p5.println(strokeColorButton.getName());
+	    String t_sn = strokeColorButton.getName();
+	    svgTile.colorSelect(t_sn, currentSvgChild);
+    	final Color fs = svgTile.getStrokeColor(currentSvgChild);
+    	final int tfs = CatsEye.p5.color(fs.getRed(), fs.getGreen(), fs.getBlue());
+	    strokeColorButton.setColorBackground((int)(tfs));
+	    chosenImage = svgTile.updateSvgView(); // get updated SVG
+   	    setImage(chosenImage); // draw updated svg
+	    }
+
+private void clearSvgData(){
+	try{
+	
+    svgList.clear();
+	} catch(ArrayIndexOutOfBoundsException e ) {
+		System.out.println("caught svg error");
+	}
+	
+    bgColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
+    fillColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
+    strokeColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
+}
+  
+private void createGuiControlsSVG(int t_listSize){
+	//if (svgControls == false){
+if(svgList != null){	
+    CatsEye.p5.println(svgList != null);
+	clearSvgData();
+}else{
+	 svgList = cp5.addDropdownList("SVGcontrol")
+	            .setPosition(354, 41)
+	            .setSize(75,200)
+	            .setItemHeight(20)
+		        .setBarHeight(20)
+	            ;
+	    svgList.captionLabel().style().marginTop = 5;
+	    svgList.captionLabel().style().marginLeft = 3;
+	    svgList.valueLabel().style().marginTop = 3;
+	    svgList.scroll(0);
+	    bgColorButton = cp5.addButton("bg")
+	    	    .setPosition(430,20)
+	    	     .setSize(20, 20)
+	    	     ;
+	    fillColorButton = cp5.addButton("fc")
+	    	    .setPosition(452,20)
+	    	     .setSize(20, 20)
+	    	     ;
+	    strokeColorButton = cp5.addButton("sc")
+	    	    .setPosition(474,20)
+	    	     .setSize(20, 20)
+	    	  	    	     ;
+	    strokeWeightBox = cp5.addNumberbox("sw")
+	     .setPosition(498,20)
+	     .setSize(26,20)
+	     .setRange(0,10)
+	     .setScrollSensitivity(40)
+	     .setMultiplier(.1f)
+	     .setValue(0)
+	     ;
+
+	} 
+   // svgControls = true;
+	    for (int i=0;i<t_listSize;i++) {
+		    svgList.addItem("child "+i, i);
+		  }
+	  
+}
+
+  @SuppressWarnings("deprecation")
+private void createGuiControls(){
     cp5 = new ControlP5(this);
         
     cp5.addButton("LoadImage")
     .setPosition(20,20)
+     .setSize(49, 20)
       .plugTo(this, "loadImageEvent");
     
     cp5.addButton("generate")
-    .plugTo(parent,"generate")
-      .setPosition(100,20);
-    
-    cp5.addButton("randomize")
-    .setPosition(180,20)
-      .plugTo(this, "randomizeMarqueeSelection");
-    
-    box_width = cp5.addNumberbox("box_width")
-    .setPosition(280, 20)
-      .setSize(45, 14)
-        .setScrollSensitivity(1.1f)
-          .setValue(0)
-            .setRange(0,10000)
-              .plugTo(this,"clipBoxWidth");
-            
-              
-    box_height = cp5.addNumberbox("box_height")
-    .setPosition(350, 20)
-      .setSize(45, 14)
-        .setScrollSensitivity(1.1f)
-          .setValue(0)
-            .setRange(0,10000)
-              .plugTo(this,"clipBoxHeight");
-              
-    box_x = cp5.addNumberbox("box_x")
-    .setPosition(450, 20)
-      .setSize(45, 14)
-        .setScrollSensitivity(1.1f)
-          .setValue(0)
-            .setRange(0,10000)
-               .plugTo(this,"clipBoxX");
+      .setPosition(77,20)
+          .setSize(46, 20)
+             .plugTo(parent,"generate");
 
-    box_y = cp5.addNumberbox("box_y")
-    .setPosition(520, 20)
-      .setSize(45, 14)
-        .setScrollSensitivity(1.1f)
-          .setValue(0)
-            .setRange(0,10000)
-              .plugTo(this,"clipBoxY"); 
+    cp5.addButton("randomize")
+    .setPosition(130,20)
+     .setSize(49, 20)
+      .plugTo(this, "randomizeMarqueeSelection");
+   
+    cp5.addButton("tri/rect")
+    .setPosition(186,20)
+     .setSize(45, 20)
+     // .plugTo(this, "randomizeMarqueeSelection")
+     ;
+    cp5.addButton("save crop")
+    .setPosition(238,20)
+     .setSize(49, 20)
+     // .plugTo(this, "randomizeMarqueeSelection")
+     ;
+    
+    cp5.addButton("load crop")
+    .setPosition(295,20)
+     .setSize(49, 20)
+     // .plugTo(this, "randomizeMarqueeSelection")
+     ;
               
     triSelectBtn = cp5.addToggle("useTriSelect")
       .setPosition(this.width-60, this.height-60)
