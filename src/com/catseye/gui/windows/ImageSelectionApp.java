@@ -46,8 +46,10 @@ public class ImageSelectionApp extends GUIApp {
   
   private DropdownList svgList;
   private int currentSvgChild;
-  private Button bgColorButton,fillColorButton, strokeColorButton;
+  private Button fillColorButton, strokeColorButton, fillColourToggleButton, strokeColourToggleButton;
+ // private boolean fillColourToggle;
   private Numberbox strokeWeightBox;
+ // private Toggle fillColourToggleButton;
   public float sw;// cp5 variable automatically updated by changes to strokeWeightBox
   private int SVGlistSize;
   
@@ -56,7 +58,7 @@ public class ImageSelectionApp extends GUIApp {
   private boolean svgInit = false;
   private PVector mouseDragOffsetTL, mouseDragOffsetBR;
   
-  private Button triSelectBtn;
+  private Button triSelectBtn, renderModeToggle;
   private boolean useTriSelect = false;
   private int triSelectedCorner;
   private PVector[] triangularSelection = {new PVector(0,0), new PVector(0,1), new PVector(1,1)};
@@ -132,6 +134,18 @@ public class ImageSelectionApp extends GUIApp {
 	  useTriSelect = !useTriSelect;
   }
   
+  public void setRenderModeToggle(){
+	  //set the current render mode and return it as a string for the button label
+	   final String t_renderString = parent.setRenderMode();
+	   final String t_renderStringSuffix = t_renderString.substring(t_renderString.length()-3);
+	  	      if (t_renderStringSuffix.equals("a2D")) {
+	  	  	  renderModeToggle.setCaptionLabel("JAVA_2D");	    	  
+	      }else{
+	    	  renderModeToggle.setCaptionLabel("PGRAPHICS_2D");	  
+	      }
+	    	  
+  }
+  
   
   /*
   *   returns a PImage that is cropped by the current selection tool from the currently loaded texture image
@@ -197,10 +211,11 @@ public class ImageSelectionApp extends GUIApp {
       textSize(14);
       fill(0);
 
-      if(parent.getRenderMode() == P2D)
-        text("P2D rendering", 20, this.height-48);
-      else
-        text("JAVA2D rendering", 20, this.height-48);
+      //replaced by button, Doug 20-5-14
+//      if(parent.getRenderMode() == P2D)
+//        text("P2D rendering", 20, this.height-48);
+//      else
+//        text("JAVA2D rendering", 20, this.height-48);
               
   }
   
@@ -483,12 +498,8 @@ public class ImageSelectionApp extends GUIApp {
   
   public void controlEvent(ControlEvent theEvent) {
 	  //strokeWeightBox update has to go here - behave differently than buttons
-	 if(theEvent.isFrom(strokeWeightBox)){
-	  CatsEye.p5.println("what"); // establish layer
-	    svgTile.setStrokeWeight(sw, currentSvgChild);
-  	    chosenImage = svgTile.updateSvgView(); // get updated SVG
- 	    setImage(chosenImage); // draw updated svg
-	 }
+
+	    
 	  // check for cp5 event coming from the svgList dropdown menu
 	  // init greyscale here, because original svg color is destroyed when the controls are activated
 	  if (theEvent.isFrom(svgList)){
@@ -497,30 +508,48 @@ public class ImageSelectionApp extends GUIApp {
 		    	 currentSvgChild = (int)(theEvent.getGroup().getValue()); // establish layer
 				 chosenImage = svgTile.init(); // get the original SVG
 				 // setup SVG controls
-				 bgColorButton.setColorBackground((int)(svgTile.getBGcolor()));
 			     final Color ff = svgTile.getFillColor(currentSvgChild);
 			     final int tff = CatsEye.p5.color(ff.getRed(), ff.getGreen(), ff.getBlue());
 				 fillColorButton.setColorBackground((int)(tff));
+				 //fillColourToggleButton.setValue(true);
 				 final Color sf = svgTile.getStrokeColor(currentSvgChild);
 			     final int tsf = CatsEye.p5.color(sf.getRed(), sf.getGreen(), sf.getBlue());
 				  strokeColorButton.setColorBackground((int)(tsf));
-		    	 setImage(chosenImage); // draw the original svg
-		    	 svgInit = true;
+				  fillColourToggleButton.show();
+				  strokeColourToggleButton.show();
+ 		    	  setImage(chosenImage); // draw the original svg
+		    	  svgInit = true;
+
 		  }else{ // for resetting dropdown menu and buttons based on child layer color
 		    	 currentSvgChild = (int)(theEvent.getGroup().getValue()); // establish layer
 				 //based on the dropdown, get and set the current layer values for the svg gui 
-		    	 bgColorButton.setColorBackground((int)(svgTile.getBGcolor()));
-			     final Color ff = svgTile.getFillColor(currentSvgChild);
+			     // set the fill toggle and colour to match 
+				 if(svgTile.getFillBoolean(currentSvgChild) == false){
+					  fillColourToggleButton.setColorBackground(CatsEye.p5.color(7,38,62));
+				  }else{
+					  fillColourToggleButton.setColorBackground(CatsEye.p5.color(120, 180, 240));
+				  }final Color ff = svgTile.getFillColor(currentSvgChild);
+				     // set the stroke toggle and colour to match 
 			     final int tff = CatsEye.p5.color(ff.getRed(), ff.getGreen(), ff.getBlue());
 				 fillColorButton.setColorBackground((int)(tff));
+
+				 if(svgTile.getStrokeBoolean(currentSvgChild) == false){
+					  strokeColourToggleButton.setColorBackground(CatsEye.p5.color(7,38,62));
+				  }else{
+					  strokeColourToggleButton.setColorBackground(CatsEye.p5.color(120, 180, 240));
+				  }
 				 final Color sf = svgTile.getStrokeColor(currentSvgChild);
 			     final int tsf = CatsEye.p5.color(sf.getRed(), sf.getGreen(), sf.getBlue());
 				  strokeColorButton.setColorBackground((int)(tsf));
+				     // set the stroke width to match 
+				  strokeWeightBox.setValue(svgTile.getStrokeWeight(currentSvgChild));
+
+
 		  }
 	    	
 	  }else if(theEvent.isFrom(triSelectBtn)){
       defaultTriangularSelection();
-    } 
+    }
   }
 
   
@@ -543,7 +572,6 @@ public class ImageSelectionApp extends GUIApp {
 		if(svgList!=null){   
 			svgList.remove();
 			svgList = null;
-	    	bgColorButton.remove();
 	    	fillColorButton.remove();
 	    	strokeColorButton.remove();
 	    	strokeWeightBox.remove();
@@ -551,7 +579,32 @@ public class ImageSelectionApp extends GUIApp {
 		}
   }
   
-  public void SVGfillColour() {
+  
+  public void fillColourToggle(){
+	  final boolean t_currentFillBoolean = svgTile.setFillBoolean(currentSvgChild);
+	  if(t_currentFillBoolean == false){
+		  fillColourToggleButton.setColorBackground(CatsEye.p5.color(7,38,62));
+	  }else{
+		  fillColourToggleButton.setColorBackground(CatsEye.p5.color(120, 180, 240));
+		 
+	  }
+	  chosenImage = svgTile.updateSvgView(); // get updated SVG
+ 	    setImage(chosenImage); // draw updated svg
+  }
+  
+  public void strokeColourToggle(){
+	  final boolean t_currentStrokeBoolean = svgTile.setStrokeBoolean(currentSvgChild);
+	  if(t_currentStrokeBoolean == false){
+		  strokeColourToggleButton.setColorBackground(CatsEye.p5.color(7,38,62));
+	  }else{
+		  strokeColourToggleButton.setColorBackground(CatsEye.p5.color(120, 180, 240));
+		 
+	  }
+	  chosenImage = svgTile.updateSvgView(); // get updated SVG
+ 	    setImage(chosenImage); // draw updated svg
+  }
+  
+  public void svgFillColour() {
 	    String t_fn = fillColorButton.getName();
 	    svgTile.colorSelect(t_fn, currentSvgChild);
     	final Color ff = svgTile.getFillColor(currentSvgChild);
@@ -561,8 +614,7 @@ public class ImageSelectionApp extends GUIApp {
    	    setImage(chosenImage); // draw updated svg
 	    }
   
-  public void SVGstrokeColour() {
-	  CatsEye.p5.println(strokeColorButton.getName());
+  public void svgStrokeColour() {
 	    String t_sn = strokeColorButton.getName();
 	    svgTile.colorSelect(t_sn, currentSvgChild);
     	final Color fs = svgTile.getStrokeColor(currentSvgChild);
@@ -571,16 +623,20 @@ public class ImageSelectionApp extends GUIApp {
 	    chosenImage = svgTile.updateSvgView(); // get updated SVG
    	    setImage(chosenImage); // draw updated svg
 	    }
+  public void svgStrokeWeight() {
+       svgTile.setStrokeWeight(strokeWeightBox.getValue(), currentSvgChild);
+	  chosenImage = svgTile.updateSvgView(); // get updated SVG
+   	    setImage(chosenImage); // draw updated svg
+	    }
 
 private void clearSvgData(){
-	try{
+	//try{
 	
     svgList.clear();
-	} catch(ArrayIndexOutOfBoundsException e ) {
-		System.out.println("caught svg error");
-	}
+//	} catch(ArrayIndexOutOfBoundsException e ) {
+	//	System.out.println("caught svg error");
+//	}
 	
-    bgColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
     fillColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
     strokeColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
 }
@@ -588,11 +644,11 @@ private void clearSvgData(){
 private void createGuiControlsSVG(int t_listSize){
 	//if (svgControls == false){
 if(svgList != null){	
-    CatsEye.p5.println(svgList != null);
+    //CatsEye.p5.println(svgList != null);
 	clearSvgData();
 }else{
 	 svgList = cp5.addDropdownList("SVGcontrol")
-	            .setPosition(354, 41)
+	            .setPosition(349, 41)
 	            .setSize(75,200)
 	            .setItemHeight(20)
 		        .setBarHeight(20)
@@ -601,27 +657,45 @@ if(svgList != null){
 	    svgList.captionLabel().style().marginLeft = 3;
 	    svgList.valueLabel().style().marginTop = 3;
 	    svgList.scroll(0);
-	    bgColorButton = cp5.addButton("bg")
-	    	    .setPosition(430,20)
-	    	     .setSize(20, 20)
-	    	     ;
+
 	    fillColorButton = cp5.addButton("fc")
-	    	    .setPosition(452,20)
+	    	    .setPosition(426,20)
 	    	     .setSize(20, 20)
-	    	     .plugTo(this, "SVGfillColour");
+	    	     .plugTo(this, "svgFillColour");
 	    
+	    fillColourToggleButton = cp5.addButton("fctb")
+	    	    .setPosition(426,9)
+	    	     .setSize(20, 10)
+	    	     .plugTo(this, "fillColourToggle")
+		         .setColorBackground(CatsEye.p5.color(20, 140, 220))
+		         .setCaptionLabel("")
+
+		         .hide()
+;
 	    strokeColorButton = cp5.addButton("sc")
-	    	    .setPosition(474,20)
+	    	    .setPosition(448,20)
 	    	     .setSize(20, 20)
-	    	     .plugTo(this, "SVGstrokeColour");
+	    	     .plugTo(this, "svgStrokeColour");
 	    
-	    strokeWeightBox = cp5.addNumberbox("sw")
-	     .setPosition(498,20)
-	     .setSize(26,20)
+	    
+strokeColourToggleButton = cp5.addButton("sctb")
+	    .setPosition(448,9)
+	     .setSize(20, 10)
+	     .plugTo(this, "strokeColourToggle")
+        .setColorBackground(CatsEye.p5.color(20, 140, 220))
+        .setCaptionLabel("")
+        .hide()
+	     ;
+
+	    
+	    strokeWeightBox = cp5.addNumberbox("")
+	     .setPosition(470,20)
+	     .setSize(30,20)
 	     .setRange(0,10)
 	     .setScrollSensitivity(40)
 	     .setMultiplier(.1f)
 	     .setValue(0)
+	     .plugTo(this, "svgStrokeWeight")
 	     ;
 
 	} 
@@ -641,30 +715,37 @@ private void createGuiControls(){
      .setSize(49, 20)
       .plugTo(this, "loadImageEvent");
     
+    renderModeToggle = cp5.addButton("PGRAPHICS_2D")
+    .setPosition(20,550)
+     .setSize(65, 20)
+     .plugTo(this, "setRenderModeToggle")
+      ;
+    
     cp5.addButton("generate")
-      .setPosition(77,20)
+      .setPosition(76,20)
           .setSize(46, 20)
              .plugTo(parent,"generate");
 
     cp5.addButton("randomize")
-    .setPosition(130,20)
+    .setPosition(129,20)
      .setSize(49, 20)
       .plugTo(this, "randomizeMarqueeSelection");
    
     triSelectBtn = cp5.addButton("tri/rect")
-    .setPosition(186,20)
+    .setPosition(185,20)
     .setSize(45, 20)
     .plugTo(this, "toggleTriSelect")
-    .hide();
+    .hide()
+    ;
     
     cp5.addButton("save crop")
-    .setPosition(238,20)
+    .setPosition(237,20)
      .setSize(49, 20)
      // .plugTo(this, "randomizeMarqueeSelection")
      ;
     
     cp5.addButton("load crop")
-    .setPosition(295,20)
+    .setPosition(293,20)
      .setSize(49, 20)
      // .plugTo(this, "randomizeMarqueeSelection")
      ;

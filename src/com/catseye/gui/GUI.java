@@ -160,6 +160,20 @@ public class GUI{
     return gridGenerator.getRenderMode();
   }
   
+  // Doug's addition
+  public String setRenderMode(){
+	 // CatsEye.p5.println("toggling");
+	  final String t_renderMode = getRenderMode();
+	 
+	  if(t_renderMode == PApplet.P2D){
+	      gridGenerator.setRenderMode(PApplet.JAVA2D); 
+	      imageWindow.hideTriSelectButton();
+	     }else{
+	      gridGenerator.setRenderMode(PApplet.P2D); 
+	      imageWindow.showTriSelectButton();
+	     }
+	  return t_renderMode;
+  }
   
   
   /* 
