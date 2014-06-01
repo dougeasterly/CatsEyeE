@@ -46,7 +46,7 @@ public class ImageSelectionApp extends GUIApp {
   
   private DropdownList svgList;
   private int currentSvgChild;
-  private Button fillColorButton, strokeColorButton, fillColourToggleButton, strokeColourToggleButton;
+  private Button saveCropButton, loadCropButton, fillColorButton, strokeColorButton, fillColourToggleButton, strokeColourToggleButton;
  // private boolean fillColourToggle;
   private Numberbox strokeWeightBox;
  // private Toggle fillColourToggleButton;
@@ -579,6 +579,20 @@ public class ImageSelectionApp extends GUIApp {
 		}
   }
   
+  public void saveCropData(){
+	  CatsEye.p5.println("saveCropPressed");
+	  /*
+	   some method here for saving the x0y0,x1y1,x2y2,x3y3 value pairs of the crop box
+	   or, just 3 values if triangle crop
+	   * */
+  }
+  public void loadCropData(){
+	  CatsEye.p5.println("loadCropPressed");
+	  /*
+	   some method here for loading the x0y0,x1y1,x2y2,x3y3 value pairs of the crop box
+	   or, just 3 values if triangle crop
+	   * */
+  }
   
   public void fillColourToggle(){
 	  final boolean t_currentFillBoolean = svgTile.setFillBoolean(currentSvgChild);
@@ -738,16 +752,16 @@ private void createGuiControls(){
     .hide()
     ;
     
-    cp5.addButton("save crop")
+    saveCropButton = cp5.addButton("save crop")
     .setPosition(237,20)
      .setSize(49, 20)
-     // .plugTo(this, "randomizeMarqueeSelection")
+      .plugTo(this, "saveCropData")
      ;
     
-    cp5.addButton("load crop")
+    loadCropButton = cp5.addButton("load crop")
     .setPosition(293,20)
      .setSize(49, 20)
-     // .plugTo(this, "randomizeMarqueeSelection")
+      .plugTo(this, "loadCropData")
      ;
 
     
