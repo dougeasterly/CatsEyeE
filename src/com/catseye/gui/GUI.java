@@ -69,7 +69,6 @@ public class GUI{
   public GUI() {
     cp5 = new ControlP5(CatsEye.p5);
   
-    gridControlGroup();
     globalControlGroup();
     
 	gridGenerator = new HexGrid();
@@ -423,57 +422,14 @@ public class GUI{
               .setGroup(globalControls)
                 .setInputFilter(ControlP5.INTEGER)
                    .plugTo(this);
-  
-    gridTypeButton = cp5.addRadioButton("changeGridType")
-      .setPosition(20, 80)
-        .setSize(10, 10)
-          .setItemsPerRow(3)
-            .setSpacingColumn(30)
-              .setSpacingRow(20)
-                .addItem("Hex", 0)
-                  .addItem("Tri", 1)
-                    .addItem("Square", 2)
-                      .addItem("Voronoi", 3)
-                        .addItem("Delaunay", 4)
-                          .setGroup(globalControls)
-                             .plugTo(this);
-
-  
-    gridTypeButton.activate(0);
-  
-    cp5.addNumberbox("cellRadius")
-      .setPosition(20, 140)
-        .setSize(50, 14)
-          .setScrollSensitivity(1.1f)
-            .setValue(100)
-              .setRange(10, 5000)
-                .setGroup(globalControls)
-                   .plugTo(this);
-
-  
-    cp5.addNumberbox("svgScale")
-      .setPosition(90, 140)
-        .setSize(50, 14)
-          .setRange(0.1f, 50)
-            .setMultiplier(0.1f)
-              .setScrollSensitivity(0.1f)
-                .setValue(1.0f)
-                  .setGroup(globalControls)
-                     .plugTo(this);
 
   
     cp5.addButton("generate")
-      .setPosition(20, 180)
-        .setSize(50, 20)
+      .setPosition(20, 54)
+        .setSize(120, 20)
           .setGroup(globalControls)
              .plugTo(this);
 
-  
-    cp5.addButton("saveImage")
-      .setPosition(90, 180)
-        .setSize(50, 20)
-          .setGroup(globalControls)
-             .plugTo(this);
 
           
           
@@ -490,37 +446,6 @@ public class GUI{
   }
   
   
-  //GRID GUI SETUP
-  void gridControlGroup() {
-  
-    gridControls = cp5.addGroup("gridControls")
-      .setPosition(0, 230)
-        .setBackgroundHeight(250)
-          .setWidth(160)
-            .setBackgroundColor(CatsEye.p5.color(0, 90));
-  
-  
-    cp5.addSlider("missingOdds")
-      .setPosition(20, 20)
-        .setSize(80, 20)
-          .setRange(0, 1)
-            .setGroup(gridControls)
-            	.plugTo(this);
-  
-  
-    cp5.addToggle("useMask")
-      .setPosition(20, 60)
-        .setSize(20, 20)
-          .setGroup(gridControls)
-          	.plugTo(this);
-  
-  
-    maskImageBtn = cp5.addButton("loadMask")
-      .setPosition(20, 100)
-        .setSize(120, 120)
-          .setGroup(gridControls)
-          	.plugTo(this);
-  }
   
   
   
