@@ -109,10 +109,10 @@ public class GUI{
    
     CatsEye.p5.fill(180, 200);
     CatsEye.p5.noStroke();
-    CatsEye.p5.rect(0,490, 160, CatsEye.p5.height-490);
+    CatsEye.p5.rect(0,104, 160, CatsEye.p5.height-104);
     
     PImage previewImage = gridGenerator.getUnitImage();
-    CatsEye.p5.image(previewImage, 20, 500);
+    CatsEye.p5.image(previewImage, 20, 124);
     
   }
   
@@ -160,17 +160,21 @@ public class GUI{
   }
   
   // Doug's addition
-  public String setRenderMode(){
+  public String toggleRenderMode(){
 	 // CatsEye.p5.println("toggling");
-	  final String t_renderMode = getRenderMode();
+	  
+	  String t_renderMode = getRenderMode();
 	 
-	  if(t_renderMode == PApplet.P2D){
-	      gridGenerator.setRenderMode(PApplet.JAVA2D); 
-	      imageWindow.hideTriSelectButton();
-	     }else{
-	      gridGenerator.setRenderMode(PApplet.P2D); 
+	  if(t_renderMode.equals(PApplet.JAVA2D)){
+		  gridGenerator.setRenderMode(PApplet.P2D); 
 	      imageWindow.showTriSelectButton();
-	     }
+	      t_renderMode = PApplet.P2D;
+	  }else{
+		  gridGenerator.setRenderMode(PApplet.JAVA2D); 
+		  imageWindow.hideTriSelectButton();
+	      t_renderMode = PApplet.JAVA2D;
+	  }
+	  
 	  return t_renderMode;
   }
   
@@ -415,7 +419,7 @@ public class GUI{
   
     globalControls = cp5.addGroup("globalControls")
       .setPosition(0, 10)
-        .setBackgroundHeight(210)
+        .setBackgroundHeight(94)
           .setWidth(160)
             .setBackgroundColor(CatsEye.p5.color(0, 90));
   
@@ -448,13 +452,13 @@ public class GUI{
           
           
     cp5.addButton("save Tile")
-      .setPosition(20, 600)
+      .setPosition(20, 224)
         .setSize(50, 20)
         .plugTo(this,"saveTile");
 
         
     cp5.addButton("save Image")
-      .setPosition(90, 600)
+      .setPosition(90, 224)
         .setSize(50, 20)
           .plugTo(this,"saveImage");
   }

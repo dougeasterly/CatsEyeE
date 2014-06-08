@@ -44,7 +44,7 @@ public class TileGrid {
 
   protected boolean useMask;
 
-  protected String renderMode = PApplet.JAVA2D;
+  protected String renderMode = PApplet.P2D;
 
 
   //----------------------CONSTRUCTORS------------------------
@@ -264,6 +264,7 @@ public class TileGrid {
       TileGrid g = getGridFromClassString(i_subClassName);
       
       if(g != null){
+    	g.setRenderMode(PApplet.JAVA2D);
     	g.setCellRadius(i_size.x/4.0f);
       	g.setRenderSize(i_size);
       	g.setPreviewSize(i_size);

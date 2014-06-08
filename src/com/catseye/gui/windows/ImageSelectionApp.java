@@ -35,7 +35,7 @@ public class ImageSelectionApp extends GUIApp {
   private PImage chosenImage; 
   SVGLoader svgTile;
   
-  private float svgScale;
+  private float svgScale = 5;
   
   private int clipBoxWidth, clipBoxHeight, clipBoxX, clipBoxY;
   private float scaleFactor;
@@ -102,7 +102,7 @@ public class ImageSelectionApp extends GUIApp {
        previewImage.resize(this.appWidth-40, 0);
     }
     else{
-       previewImage.resize(0,this.appHeight-150);
+       previewImage.resize(0,this.appHeight-180);
     }
    
     scaleFactor = previewImage.width/(i_img.width+0.0f); 
@@ -134,15 +134,15 @@ public class ImageSelectionApp extends GUIApp {
 	  useTriSelect = !useTriSelect;
   }
   
-  public void setRenderModeToggle(){
+  public void toggleRenderMode(){
 	  //set the current render mode and return it as a string for the button label
-	   final String t_renderString = parent.setRenderMode();
-	   final String t_renderStringSuffix = t_renderString.substring(t_renderString.length()-3);
-	  	      if (t_renderStringSuffix.equals("a2D")) {
+	  String renderMode = parent.toggleRenderMode();
+	  
+	   if (renderMode.equals(PApplet.JAVA2D)) {
 	  	  	  renderModeToggle.setCaptionLabel("JAVA_2D");	    	  
-	      }else{
+	   }else{
 	    	  renderModeToggle.setCaptionLabel("PGRAPHICS_2D");	  
-	      }
+	   }
 	    	  
   }
   
@@ -210,6 +210,11 @@ public class ImageSelectionApp extends GUIApp {
       
       textSize(14);
       fill(0);
+      
+      if(svgTile != null && svgTile.isDirty() && frameCount %10 == 0){
+    	  updateSVGImage();
+    	  svgTile.clean();
+      }
 
       //replaced by button, Doug 20-5-14
 //      if(parent.getRenderMode() == P2D)
@@ -594,6 +599,11 @@ public class ImageSelectionApp extends GUIApp {
 	   * */
   }
   
+  public void updateSVGImage(){
+	  chosenImage = svgTile.updateSvgView(); 
+	  setImage(chosenImage); 
+  }
+  
   public void fillColourToggle(){
 	  final boolean t_currentFillBoolean = svgTile.setFillBoolean(currentSvgChild);
 	  if(t_currentFillBoolean == false){
@@ -602,8 +612,7 @@ public class ImageSelectionApp extends GUIApp {
 		  fillColourToggleButton.setColorBackground(CatsEye.p5.color(120, 180, 240));
 		 
 	  }
-	  chosenImage = svgTile.updateSvgView(); // get updated SVG
- 	    setImage(chosenImage); // draw updated svg
+	  updateSVGImage();
   }
   
   public void strokeColourToggle(){
@@ -612,10 +621,8 @@ public class ImageSelectionApp extends GUIApp {
 		  strokeColourToggleButton.setColorBackground(CatsEye.p5.color(7,38,62));
 	  }else{
 		  strokeColourToggleButton.setColorBackground(CatsEye.p5.color(120, 180, 240));
-		 
 	  }
-	  chosenImage = svgTile.updateSvgView(); // get updated SVG
- 	    setImage(chosenImage); // draw updated svg
+	  updateSVGImage();
   }
   
   public void svgFillColour() {
@@ -624,9 +631,8 @@ public class ImageSelectionApp extends GUIApp {
     	final Color ff = svgTile.getFillColor(currentSvgChild);
     	final int tff = CatsEye.p5.color(ff.getRed(), ff.getGreen(), ff.getBlue());
 	    fillColorButton.setColorBackground((int)(tff));
-	    chosenImage = svgTile.updateSvgView(); // get updated SVG
-   	    setImage(chosenImage); // draw updated svg
-	    }
+		updateSVGImage();
+  }
   
   public void svgStrokeColour() {
 	    String t_sn = strokeColorButton.getName();
@@ -634,22 +640,17 @@ public class ImageSelectionApp extends GUIApp {
     	final Color fs = svgTile.getStrokeColor(currentSvgChild);
     	final int tfs = CatsEye.p5.color(fs.getRed(), fs.getGreen(), fs.getBlue());
 	    strokeColorButton.setColorBackground((int)(tfs));
-	    chosenImage = svgTile.updateSvgView(); // get updated SVG
-   	    setImage(chosenImage); // draw updated svg
-	    }
+		updateSVGImage();
+  }
+  
   public void svgStrokeWeight() {
        svgTile.setStrokeWeight(strokeWeightBox.getValue(), currentSvgChild);
-	  chosenImage = svgTile.updateSvgView(); // get updated SVG
-   	    setImage(chosenImage); // draw updated svg
-	    }
+ 	   updateSVGImage();
+  }
 
 private void clearSvgData(){
-	//try{
 	
     svgList.clear();
-//	} catch(ArrayIndexOutOfBoundsException e ) {
-	//	System.out.println("caught svg error");
-//	}
 	
     fillColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
     strokeColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
@@ -661,12 +662,13 @@ if(svgList != null){
     //CatsEye.p5.println(svgList != null);
 	clearSvgData();
 }else{
-	 svgList = cp5.addDropdownList("SVGcontrol")
-	            .setPosition(349, 41)
-	            .setSize(75,200)
-	            .setItemHeight(20)
-		        .setBarHeight(20)
-	            ;
+	
+	 	svgList = cp5.addDropdownList("SVGcontrol")
+	 		.setPosition(349, 41)
+	        .setSize(75,200)
+	        .setItemHeight(20)
+		    .setBarHeight(20);
+	 
 	    svgList.captionLabel().style().marginTop = 5;
 	    svgList.captionLabel().style().marginLeft = 3;
 	    svgList.valueLabel().style().marginTop = 3;
@@ -683,23 +685,21 @@ if(svgList != null){
 	    	     .plugTo(this, "fillColourToggle")
 		         .setColorBackground(CatsEye.p5.color(20, 140, 220))
 		         .setCaptionLabel("")
-
-		         .hide()
-;
+		         .hide();
+	    
 	    strokeColorButton = cp5.addButton("sc")
 	    	    .setPosition(448,20)
 	    	     .setSize(20, 20)
 	    	     .plugTo(this, "svgStrokeColour");
 	    
 	    
-strokeColourToggleButton = cp5.addButton("sctb")
-	    .setPosition(448,9)
-	     .setSize(20, 10)
-	     .plugTo(this, "strokeColourToggle")
-        .setColorBackground(CatsEye.p5.color(20, 140, 220))
-        .setCaptionLabel("")
-        .hide()
-	     ;
+	    strokeColourToggleButton = cp5.addButton("sctb")
+	    	.setPosition(448,9)
+		    .setSize(20, 10)
+		    .plugTo(this, "strokeColourToggle")
+	        .setColorBackground(CatsEye.p5.color(20, 140, 220))
+	        .setCaptionLabel("")
+	        .hide();
 
 	    
 	    strokeWeightBox = cp5.addNumberbox("")
@@ -709,8 +709,7 @@ strokeColourToggleButton = cp5.addButton("sctb")
 	     .setScrollSensitivity(40)
 	     .setMultiplier(.1f)
 	     .setValue(0)
-	     .plugTo(this, "svgStrokeWeight")
-	     ;
+	     .plugTo(this, "svgStrokeWeight");
 
 	} 
    // svgControls = true;
@@ -732,8 +731,7 @@ private void createGuiControls(){
     renderModeToggle = cp5.addButton("PGRAPHICS_2D")
     .setPosition(20,550)
      .setSize(65, 20)
-     .plugTo(this, "setRenderModeToggle")
-      ;
+     .plugTo(this, "toggleRenderMode");
     
     cp5.addButton("generate")
       .setPosition(76,20)
@@ -749,8 +747,7 @@ private void createGuiControls(){
     .setPosition(185,20)
     .setSize(45, 20)
     .plugTo(this, "toggleTriSelect")
-    .hide()
-    ;
+    .hide();
     
     saveCropButton = cp5.addButton("save crop")
     .setPosition(237,20)
