@@ -1,6 +1,7 @@
 package com.catseye.gui;
 
 import processing.core.*;
+import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
 import com.catseye.gui.windows.GUIWindowManager;
@@ -27,9 +28,7 @@ public class GUI{
   //--------------------GLOBAL VARIABLES-------------------
 
   GUIWindowManager windowManager;
-	
-  public int currentGridType;
-  
+	  
   Frame ImageWindowFrame, vdGUIFrame;
   
   private ControlP5 cp5;
@@ -38,23 +37,19 @@ public class GUI{
   private VoronoiDelaunayApp voronoiDelaunayWindow;
   private GridSelectionApp gridSelector;
   
-  RadioButton gridTypeButton;
   Textfield printWidthField, printHeightField;
-  Button maskImageBtn;
   Group globalControls, gridControls;
   
   private int printWidthValue = 1000;
   private int printHeightValue = 1000;
-  private float cellRadius = 100;
   private boolean drawGrid = false;
   private boolean triggerGeneration = false;
   
-  private PImage maskImage, backgroundImage;
+  private PImage backgroundImage;
   
   private TileGrid gridGenerator;
-  private VoronoiDelaunayGrid irregularGridGenerator;
 	
-	
+  private String savePath;
   
   
   
@@ -72,9 +67,8 @@ public class GUI{
     globalControlGroup();
     
 	gridGenerator = new HexGrid();
-	irregularGridGenerator = new VoronoiDelaunayGrid();
     
-	imageWindow = new ImageSelectionApp(this, 600, 600);
+	imageWindow = new ImageSelectionApp(this, 600, 700);
 	voronoiDelaunayWindow = new VoronoiDelaunayApp(this, 600, 600);
 	gridSelector = new GridSelectionApp(this, 600, 600);
 	
@@ -82,12 +76,14 @@ public class GUI{
     windowManager.addWindow("image selection", imageWindow, true);
     windowManager.addWindow("grid selection", gridSelector, true);
     windowManager.addWindow("voronoi controls", voronoiDelaunayWindow);
-    
-    toggleWindows(0);
-    
+        
     backgroundImage = createCheckerBackground();
     
+    setupSavePath();
   }
+  
+  
+
   
  
   /*
@@ -95,9 +91,9 @@ public class GUI{
   */
   
   public void drawGui(){
-    
-    update();
-    
+        
+	update();
+	  
     CatsEye.p5.image(backgroundImage, 0, 0);
     PImage patternImage = gridGenerator.getPreviewImage();
     CatsEye.p5.image(patternImage, (CatsEye.p5.width-patternImage.width)/2,  (CatsEye.p5.height-patternImage.height)/2);
@@ -130,27 +126,6 @@ public class GUI{
   }
   
   
-  
-  /* 
-  *   set whether to use a mask or not (1=use mask, 0=dont use. not boolean due to controlP5 limitations). 
-  */
-  
-  public void useMask(int i_useMask){
-    gridGenerator.useMask(i_useMask==1);
-  }
-  
-  
-  
-  /* 
-  *   set missing odds (chance a grid tile will not be drawn)
-  */
-  
-  public void missingOdds(float i_odds){
-   gridGenerator.setMissingOdds(i_odds); 
-  }
-  
-  
-  
   /* 
   *   returns current render mode. possible values are currently JAVA2D or P2D.
   */
@@ -178,17 +153,56 @@ public class GUI{
 	  return t_renderMode;
   }
   
+  public void setRenderState(String i_renderMode){
+	 // CatsEye.p5.println("toggling");
+	 
+	  if(i_renderMode.equals(PApplet.P2D)){
+	      imageWindow.showTriSelectButton();
+	      imageWindow.setRenderState(PApplet.P2D);
+	  }else{
+		  imageWindow.hideTriSelectButton();
+		  imageWindow.setRenderState(PApplet.JAVA2D);
+	  }
+	  
+  }
+  
   
   /* 
   *   image save. Images are saved in nested folders ordered by date and time
   */
+  
+  private void setupSavePath(){
+	 
+	  String[] savePathFile = CatsEye.p5.loadStrings("SavePath.txt"); 
+	  
+	  if(savePathFile != null){
+		  savePath = savePathFile[0];
+	  }else{
+		  CatsEye.p5.selectFolder("Select a folder to save images into:", "saveFolderSelected", null, this);
+	  }
+  }
+  
+  public void saveFolderSelected(File selection){
+	     
+	  if (selection == null) {
+		CatsEye.p5.selectFolder("Select a folder to save images into:", "saveFolderSelected", null, this);
+	  } else {
+		String[] path = new String[1];
+		path[0] = selection.getAbsolutePath();
+		CatsEye.p5.saveStrings("SavePath.txt", path);
+		
+		savePath = path[0];
+		System.out.println(savePath);
+	  }
+	  
+  }
   
   String[] months = {
       "january", "febuary", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"
   };
   
   public void saveImage(int guiJunk) { 
-    String path = "images/"+PApplet.year()+"/"+months[PApplet.month()-1]+"/"+PApplet.day()+"/images/"+PApplet.hour()+"_"+PApplet.minute()+"_"+PApplet.second()+"--"+GridType.typeArray[0];
+    String path = savePath+"/images/"+PApplet.year()+"/"+months[PApplet.month()-1]+"/"+PApplet.day()+"/images/"+PApplet.hour()+"_"+PApplet.minute()+"_"+PApplet.second()+"--"+GridType.typeArray[0];
     gridGenerator.saveImage(path, ".png", drawGrid);
   }  
   
@@ -199,79 +213,10 @@ public class GUI{
   
   public void saveTile() { 
     
-	String path = "images/"+PApplet.year()+"/"+months[PApplet.month()-1]+"/"+PApplet.day()+"/tiles/"+PApplet.hour()+"_"+PApplet.minute()+"_"+PApplet.second()+"--"+GridType.typeArray[0];
+	String path = savePath+"/images/"+PApplet.year()+"/"+months[PApplet.month()-1]+"/"+PApplet.day()+"/tiles/"+PApplet.hour()+"_"+PApplet.minute()+"_"+PApplet.second()+"--"+GridType.typeArray[0];
     gridGenerator.saveTile(path+".png");
 
   } 
-  
-  
-  
-  /*
-  *   choose grid type. current possibilities are HEXAGONGRID, TRIANGLEGRID, SQUAREGRID, VORONOIGRID, or DELAUNAYGRID
-  */
-  
-  public void changeGridType(int i_type) {
-  
-    toggleWindows(i_type);
-    
-    switch(i_type) {
-    case 0:
-      gridGenerator = new HexGrid(gridGenerator);
-      break;
-  
-    case 1:
-      gridGenerator = new TriGrid(gridGenerator);
-      break;
-  
-    case 2:
-      gridGenerator = new SquareGrid(gridGenerator);
-      break;
-      
-    case 3:
-      irregularGridGenerator = new VoronoiDelaunayGrid(gridGenerator);
-      gridGenerator = irregularGridGenerator;
-      irregularGridGenerator.setType(irregularGridGenerator.VORONOI);
-      voronoiDelaunayWindow.setGridType(GridType.VORONOI);
-      imageWindow.showTriSelectButton();
-      break;
-
-    case 4:
-      irregularGridGenerator = new VoronoiDelaunayGrid(gridGenerator);
-      gridGenerator = irregularGridGenerator;
-      irregularGridGenerator.setType(irregularGridGenerator.DELAUNAY);
-      voronoiDelaunayWindow.setGridType(GridType.DELAUNAY);
-      imageWindow.showTriSelectButton();
-      break;
-  
-    default:
-      gridGenerator = new HexGrid(gridGenerator);
-      break;
-    }
-   
-    currentGridType = i_type;
-    
-  }
-  
-  
-  
-  
-  /*
-  *   data update function
-  */
-  
-  public void update(){
-    
-    if(triggerGeneration){
-      
-       if(currentGridType == 3 || currentGridType == 4){
-         irregularGridGenerator.clearPoints();
-         irregularGridGenerator.addNormalizedPoints(gridGenerator.getRenderSize(), voronoiDelaunayWindow.getNormalizedPoints());
-       }
-       
-       generatePattern(); 
-    }
-   
-  }
   
   
 
@@ -285,34 +230,27 @@ public class GUI{
   }
   
   
+  public void loadTileGridIntoGUI(TileGrid grid){
+	  
+	  imageWindow.setImage(grid.getPrintImage());
+	  setRenderState(grid.getRenderMode());
+	  printWidthField.setValue(grid.getRenderSize().x);
+	  printHeightField.setValue(grid.getRenderSize().y);
+	  gridSelector.setCellSize(grid.getCellRadius());
+	  gridSelector.setMissingOdds(grid.getMissingOdds());
+	  
+	  PImage mskImg = grid.getMaskImage();
+	  
+	  if(mskImg != null)
+		  gridSelector.setMaskImage(mskImg);
+	  
+	  gridSelector.setUseMask(grid.getUseMask()); 
+  }
+  
+  
   
   //--------------------------------------PRIVATE METHODS----------------------------------------
   //although some of these are public due to controlP5 needs or otherwise, they shouldn't be used 
-  
-  
-  
-  
-  /*
-  *   callback function for mask selection filepicker
-  */
-  
-  public void maskSelected(File selection) {
-    if (selection == null) {
-      System.out.println("Window was closed or the user hit cancel.");
-    } 
-    else {
-      maskImage = CatsEye.p5.loadImage(selection.getAbsolutePath());
-      gridGenerator.setMask(maskImage);
-    }
-  
-    PImage tempImg = maskImage.get();
-    if (tempImg.width > tempImg.height)
-      tempImg.resize(120, 0);
-    else
-      tempImg.resize(0, 120);
-  
-    maskImageBtn.setImage(tempImg);
-  }  
   
   
 
@@ -369,7 +307,6 @@ public class GUI{
     
   }
   
-  
   /*
   *   helper functions to turn textbox input into integers
   */
@@ -384,27 +321,10 @@ public class GUI{
     gridGenerator.setRenderSize(new PVector(printWidthValue, printHeightValue));
   }
   
-  
-  private void toggleWindows(int i_type){
-   
-   switch(i_type){
-    case 0:
-    case 1:
-    case 2:
-        windowManager.setVisible("voronoi controls",false);
-    break;
-    
-    case 3:
-    case 4:
-    	windowManager.setVisible("voronoi controls",true);
-    	break;
-    default:
-    break;
-    
-   } 
-    
+  private void update(){
+	  if(triggerGeneration)
+		  generatePattern();
   }
-  
   
   
   //------------------------------------------ACTUAL GUI CREATION------------------------------------------
@@ -448,9 +368,7 @@ public class GUI{
           .setGroup(globalControls)
              .plugTo(this);
 
-
-          
-          
+  
     cp5.addButton("save Tile")
       .setPosition(20, 224)
         .setSize(50, 20)

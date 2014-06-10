@@ -1,10 +1,12 @@
 package com.catseye.patternComponents.gridGenerators;
 
-import java.io.Console;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 
 import processing.core.*;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
 import com.catseye.patternComponents.polygonGenerators.Java2DNgonGenerator;
@@ -44,9 +46,8 @@ public class TileGrid {
 
   protected boolean useMask;
 
-  protected String renderMode = PApplet.P2D;
-
-
+  protected String renderMode = PApplet.P2D;  
+  
   //----------------------CONSTRUCTORS------------------------
 
   //Don't create a TileGrid directly, use a subclass (hexGrid, triGrid, squareGrid)
@@ -138,44 +139,6 @@ public class TileGrid {
     missingOdds = i_odds;
   }
 
-  public void saveImage(String i_path) {
-    saveImage(i_path, ".png", false);
-  }
-
-  public void saveImage(String i_path, String i_fileSuffix, boolean i_saveWithGrid) {
-
-    if (!generated) {
-      generate();
-    }
-
-    PGraphics gfx = CatsEye.p5.createGraphics((int)renderSize.x, (int)renderSize.y);   
-    gfx.beginDraw();
-    gfx.noSmooth();
-    gfx.background(255,0);
-    gfx.image(renderContext,0,0);
-    
-    if(i_saveWithGrid){
-      regenerateGrid();
-      gfx.image(gridContext,0,0);
-    }
-      
-    gfx.save(i_path+(i_saveWithGrid ? "_GRID" : "")+i_fileSuffix);
-  }
-  
-  
-  public void saveTile(String i_path) {
-    PImage tempTile = getUnitImage();
-
-    //this is a hack for a bug that won't save images in JAVA2D mode if PImage.save() is used
-    PGraphics tile = CatsEye.p5.createGraphics(tempTile.width, tempTile.height);
-    tile.beginDraw();
-    tile.background(0,0);
-    tile.image(tempTile, 0, 0);
-    tile.endDraw();
-    //---------------------------------------------------------------------------------------
-    
-    tile.save(i_path + ".png");
-  }
 
   public void useMask(boolean i_useMask) {
     useMask = i_useMask;
@@ -183,6 +146,10 @@ public class TileGrid {
 
   public void setPreviewSize(PVector i_size) {
     previewSize = i_size;
+  }
+  
+  public void overwritePreviewImage(PImage i_preview){
+	  previewImage = i_preview;
   }
 
   /***     
@@ -334,10 +301,126 @@ public class TileGrid {
   public String getRenderMode() {
     return renderMode;
   }
+  
+  public boolean getUseMask(){
+	  return useMask;
+  }
 
+  public JSONObject getJSONSave(){
+	   JSONObject json = new JSONObject();
+	   
+	   
+	   json.setString("class", this.getClass().getName());
+	   
+	   json.setFloat("renderX", renderSize.x);
+	   json.setFloat("renderY", renderSize.y);
+	   json.setFloat("previewX", previewSize.x);
+	   json.setFloat("previewY", previewSize.y);
+	   json.setFloat("cellRadius", cellRadius);
+	   json.setFloat("missingOdds", missingOdds);
+	   json.setBoolean("useMask", useMask);
+	   json.setString("renderMode", renderMode);
+	   
+	   
+	   JSONArray texCoordsArr = new JSONArray();
+	   
+	   for(int i = 0; i < texCoords.length; ++i){
+		   JSONObject vec = new JSONObject();
+		   vec.setFloat("x", texCoords[i].x);
+		   vec.setFloat("y", texCoords[i].y);
+		   
+		   texCoordsArr.append(vec);
+	   }
+	   
+	   json.setJSONArray("texCoords", texCoordsArr);
+
+	   String saveFolder = "saveFiles/"+(new Date().getTime())+"/";
+	   
+	   if(textureImage != null)
+		   textureImage.save(saveFolder+"textureImage.png");
+	   
+	   if(maskImage != null)
+		   maskImage.save(saveFolder+"maskImage.png");
+	   
+	   if(renderContext != null)
+		   renderContext.save(saveFolder+"previewImage.png");
+	   
+	   json.setString("imageFolder", saveFolder);
+	   
+	   return json;
+  }
 
 
   //---------------------------------METHODS--------------------------------------
+  
+
+  public void saveImage(String i_path) {
+    saveImage(i_path, ".png", false);
+  }
+
+  public void saveImage(String i_path, String i_fileSuffix, boolean i_saveWithGrid) {
+
+    if (!generated) {
+      generate();
+    }
+
+    PGraphics gfx = CatsEye.p5.createGraphics((int)renderSize.x, (int)renderSize.y);   
+    gfx.beginDraw();
+    gfx.noSmooth();
+    gfx.background(255,0);
+    gfx.image(renderContext,0,0);
+    
+    if(i_saveWithGrid){
+      regenerateGrid();
+      gfx.image(gridContext,0,0);
+    }
+      
+    gfx.save(i_path+(i_saveWithGrid ? "_GRID" : "")+i_fileSuffix);
+  }
+  
+  
+  public void saveTile(String i_path) {
+    PImage tempTile = getUnitImage();
+
+    //this is a hack for a bug that won't save images in JAVA2D mode if PImage.save() is used
+    PGraphics tile = CatsEye.p5.createGraphics(tempTile.width, tempTile.height);
+    tile.beginDraw();
+    tile.background(0,0);
+    tile.image(tempTile, 0, 0);
+    tile.endDraw();
+    //---------------------------------------------------------------------------------------
+    
+    tile.save(i_path + ".png");
+  }
+  
+  public static TileGrid fromJson(JSONObject json){
+	  
+	  TileGrid g = getGridFromClassString(json.getString("class"));
+      
+      if(g != null){
+    	  	  
+   	   	g.setRenderSize(new PVector(json.getFloat("renderX"), json.getFloat("renderY")));
+   	   	g.setPreviewSize(new PVector(json.getFloat("previewX"), json.getFloat("previewY")));
+   	   	g.setCellRadius(json.getFloat("cellRadius"));
+   	   	g.setMissingOdds(json.getFloat("missingOdds"));
+   	   	boolean useMaskBool = json.getBoolean("useMask");
+   	   	g.useMask(useMaskBool);
+   	   	g.setRenderMode(json.getString("renderMode"));
+   	   	
+   	   	PImage texImg = CatsEye.p5.loadImage(json.getString("imageFolder")+"textureImage.png");
+   	   	g.setTexture(texImg);
+   	   	
+   	   	PImage prevImg = CatsEye.p5.loadImage(json.getString("imageFolder")+"previewImage.png");
+   	   	g.overwritePreviewImage(prevImg);
+   	   	
+   	   	PImage maskImg = CatsEye.p5.loadImage(json.getString("imageFolder")+"maskImage.png");
+   	   	g.setMask(maskImg);
+   	   	
+      }
+	  
+	  return g;
+  }
+  
   public void generate() {
     generate(false);
   }

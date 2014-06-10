@@ -52,6 +52,7 @@ public class SVGLoader{
 	ArrayList<Boolean> strokeBooleans = new ArrayList<Boolean>();
     ArrayList<Color> strokeColors = new ArrayList<Color>(); 
 	ArrayList<Float> strokeWeights = new ArrayList<Float>();
+	private boolean editable = false;
 
 	private boolean foreground;
 	private int svgLayer;
@@ -122,7 +123,6 @@ public class SVGLoader{
 		  if(strokeWeights.isEmpty()!=true)
 			  strokeWeights.clear();
  
-	    mySvg.disableStyle();
 	    svgCanvas.clear();
 	    svgCanvas.beginDraw();
 	    svgCanvas.smooth();
@@ -143,8 +143,14 @@ public class SVGLoader{
 	    	svgCanvas.shape(children[i], 0, 0);
 	    }
 	    
+	    mySvg.disableStyle();
+
+	    
 	    svgCanvas.endDraw();
 	    display = svgCanvas.get();
+	    
+	    editable = true;
+	    
 	    return display;
 	  }
 	  

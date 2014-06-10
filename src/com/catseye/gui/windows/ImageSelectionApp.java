@@ -109,7 +109,7 @@ public class ImageSelectionApp extends GUIApp {
     
     imageOffset = new PVector();
     imageOffset.x = this.appWidth/2-previewImage.width/2;
-    imageOffset.y = this.appHeight/2-previewImage.height/2;
+    imageOffset.y = (this.appHeight-100)/2-previewImage.height/2;
     
     setTextureClipRect(new PVector(0,0), new PVector(previewImage.width, previewImage.height, 0));
     defaultTriangularSelection();
@@ -137,13 +137,18 @@ public class ImageSelectionApp extends GUIApp {
   public void toggleRenderMode(){
 	  //set the current render mode and return it as a string for the button label
 	  String renderMode = parent.toggleRenderMode();
+	  setRenderState(renderMode);
+	     	  
+  }
+  
+  public void setRenderState(String renderMode){
 	  
-	   if (renderMode.equals(PApplet.JAVA2D)) {
-	  	  	  renderModeToggle.setCaptionLabel("JAVA_2D");	    	  
-	   }else{
-	    	  renderModeToggle.setCaptionLabel("PGRAPHICS_2D");	  
-	   }
-	    	  
+	  if (renderMode.equals(PApplet.JAVA2D)) {
+  	  	  renderModeToggle.setCaptionLabel("JAVA_2D");	    	  
+	  }else{
+    	  renderModeToggle.setCaptionLabel("PGRAPHICS_2D");	  
+	  }
+	  
   }
   
   
@@ -192,6 +197,7 @@ public class ImageSelectionApp extends GUIApp {
 
   public void draw() {
       background(180);
+      
       // need some kind of listener created w svgList group
 //      if(svgList.isOpen() == true){
 //    	  dragging = false;
@@ -524,6 +530,10 @@ public class ImageSelectionApp extends GUIApp {
 				  strokeColourToggleButton.show();
  		    	  setImage(chosenImage); // draw the original svg
 		    	  svgInit = true;
+		    	  
+		    	  fillColorButton.show();
+		    	  strokeColorButton.show();
+		    	  strokeWeightBox.show();
 
 		  }else{ // for resetting dropdown menu and buttons based on child layer color
 		    	 currentSvgChild = (int)(theEvent.getGroup().getValue()); // establish layer
@@ -677,7 +687,8 @@ if(svgList != null){
 	    fillColorButton = cp5.addButton("fc")
 	    	    .setPosition(426,20)
 	    	     .setSize(20, 20)
-	    	     .plugTo(this, "svgFillColour");
+	    	     .plugTo(this, "svgFillColour")
+	    	     .hide();
 	    
 	    fillColourToggleButton = cp5.addButton("fctb")
 	    	    .setPosition(426,9)
@@ -690,7 +701,8 @@ if(svgList != null){
 	    strokeColorButton = cp5.addButton("sc")
 	    	    .setPosition(448,20)
 	    	     .setSize(20, 20)
-	    	     .plugTo(this, "svgStrokeColour");
+	    	     .plugTo(this, "svgStrokeColour")
+	    	     .hide();
 	    
 	    
 	    strokeColourToggleButton = cp5.addButton("sctb")
@@ -709,7 +721,8 @@ if(svgList != null){
 	     .setScrollSensitivity(40)
 	     .setMultiplier(.1f)
 	     .setValue(0)
-	     .plugTo(this, "svgStrokeWeight");
+	     .plugTo(this, "svgStrokeWeight")
+	     .hide();
 
 	} 
    // svgControls = true;

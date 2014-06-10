@@ -82,9 +82,35 @@ public class GridSelectionApp extends GUIApp {
 	   
 	   
 	   
-	   //--------------------------------------PRIVATE METHODS----------------------------------------
-	   //although some of these are public due to controlP5 needs or otherwise, they shouldn't be used 
+	   //--------------------------------------PUBLIC METHODS----------------------------------------
+
+	   public void setCellSize(float i_cellSize){
+		   cellSize = i_cellSize;
+		   currentGrid.setCellRadius(cellSize);
+	   }
 	   
+	   public void setUseMask(boolean i_useMask){
+		   useMask = i_useMask;
+		   currentGrid.useMask(useMask);
+	   }
+
+	   public void setMissingOdds(float i_missingOdds){
+		   missingOdds = i_missingOdds;
+		   currentGrid.setMissingOdds(missingOdds);
+	   }
+	   
+	   public void setMaskImage(PImage i_maskImage){
+		   
+		   currentGrid.setMask(i_maskImage);
+	       
+	       PImage tempImg = i_maskImage.get();
+		     if (tempImg.width > tempImg.height)
+		       tempImg.resize(80, 0);
+		     else
+		       tempImg.resize(0, 80);
+		   
+		     maskImageButton.setImage(tempImg);
+	   }
 	   
 	   
 	   
@@ -100,16 +126,7 @@ public class GridSelectionApp extends GUIApp {
 		 } 
 	     else {
 	       maskImage = CatsEye.p5.loadImage(selection.getAbsolutePath());
-	       currentGrid.setMask(maskImage);
-	       
-	       PImage tempImg = maskImage.get();
-		     if (tempImg.width > tempImg.height)
-		       tempImg.resize(80, 0);
-		     else
-		       tempImg.resize(0, 80);
-		   
-		     maskImageButton.setImage(tempImg);
-	       
+	       setMaskImage(maskImage);
 	     }
 	     
 	   }  
@@ -117,23 +134,7 @@ public class GridSelectionApp extends GUIApp {
 	//--------------------------------------PRIVATE METHODS----------------------------------------
 	//although some of these are public due to controlP5 needs or otherwise, they shouldn't be used 
 	  
-	   
-	   
-	   
-	   private void setCellSize(float i_cellSize){
-		   cellSize = i_cellSize;
-		   currentGrid.setCellRadius(cellSize);
-	   }
-	   
-	   private void setUseMask(boolean i_useMask){
-		   useMask = i_useMask;
-		   currentGrid.useMask(useMask);
-	   }
 
-	   private void setMissingOdds(float i_missingOdds){
-		   missingOdds = i_missingOdds;
-		   currentGrid.setMissingOdds(missingOdds);
-	   }
 	   
 	   public void mouseWheel(MouseEvent e){
 		  currentGridSelection.scroll(new PVector(0, e.getAmount()*6));
