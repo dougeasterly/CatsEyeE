@@ -6,9 +6,13 @@ import java.awt.Color;
 
 import com.catseye.CatsEye;
 import com.catseye.gui.GUI;
+import com.catseye.gui.components.SavedStateBar;
+import com.catseye.gui.components.SavedStateLoader;
+import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.catseye.util.SVGLoader;
 
 import processing.core.*;
+import processing.data.JSONObject;
 import controlP5.*;
 
 
@@ -27,6 +31,8 @@ public class ImageSelectionApp extends GUIApp {
 	
   GUI parent;
   ControlP5 cp5;
+  
+  private SavedStateBar saves; 
   
   PImage previewImage, textureImage;
   
@@ -75,6 +81,8 @@ public class ImageSelectionApp extends GUIApp {
     parent = i_Parent;
     this.appWidth = i_width;
     this.appHeight = i_height;
+    
+    saves = new SavedStateBar(this); 
   }
 
   
@@ -85,14 +93,13 @@ public class ImageSelectionApp extends GUIApp {
     imageOffset = new PVector(0,0);
    
     createGuiControls();    
-    setTextureClipRect(new PVector(0,0), new PVector(0,0));
-    
+    setTextureClipRect(new PVector(0,0), new PVector(0,0));    
   }
   
   
   
   //--------------------------------PUBLIC METHODS---------------------------------------
- 
+  
   public void setImage(PImage i_img){
      
     textureImage = i_img.get();
@@ -151,6 +158,30 @@ public class ImageSelectionApp extends GUIApp {
 	  
   }
   
+  public void setTextureCoords(PVector[] i_texCoords){
+	  
+	  
+
+	  
+	  if(i_texCoords[3].x == 1){
+		  triangularSelection = new PVector[i_texCoords.length];
+		  
+		  for(int i = 0; i < i_texCoords.length; ++i){
+			  triangularSelection[i] = i_texCoords[i].get();
+		  }
+		  useTriSelect = true;
+		  scaleTexCoordsToImage();  
+	  }else{
+		  setTextureClipRect(i_texCoords[0].get(), i_texCoords[2].get());
+		  scaleTexCoordsToImage();
+		  setClipBoxCoords();
+		  useTriSelect = false;
+	  }
+	  
+	  
+	  
+  }
+  
   
   /*
   *   returns a PImage that is cropped by the current selection tool from the currently loaded texture image
@@ -159,10 +190,7 @@ public class ImageSelectionApp extends GUIApp {
   public PImage getCropSection(){
    
     if(textureImage != null){
-      if(!useTriSelect)
-        return textureImage.get((int)(textureClipRectTL.x/scaleFactor), (int)(textureClipRectTL.y/scaleFactor), (int)((textureClipRectBR.x - textureClipRectTL.x)/scaleFactor), (int)((textureClipRectBR.y - textureClipRectTL.y)/scaleFactor));
-      else
-        return textureImage;
+        return textureImage.get();
     }else{
      PGraphics out = createGraphics(1,1);
      out.beginDraw();
@@ -222,6 +250,8 @@ public class ImageSelectionApp extends GUIApp {
     	  svgTile.clean();
       }
 
+      saves.draw();
+      
       //replaced by button, Doug 20-5-14
 //      if(parent.getRenderMode() == P2D)
 //        text("P2D rendering", 20, this.height-48);
@@ -273,16 +303,21 @@ public class ImageSelectionApp extends GUIApp {
   }
   
   public void mousePressed(){
-    if(textureImage != null){
-               
-      PVector mousePos = getOffsetMousePos();
-      
-      if(!useTriSelect)
-        marqueeSelect(mousePos);
-      else
-        triSelection(mousePos);
-         
-    }
+    
+	if(mouseY < height-100){  
+		if(textureImage != null){
+	               
+	      PVector mousePos = getOffsetMousePos();
+	      
+	      if(!useTriSelect)
+	        marqueeSelect(mousePos);
+	      else
+	        triSelection(mousePos); 
+	    }
+	}else{
+		TileGrid loaded = saves.getClicked(new PVector(mouseX, mouseY));
+		parent.loadTileGridIntoGUI(loaded);
+	}
   }
   
   private void marqueeSelect(PVector mousePos){
@@ -344,11 +379,15 @@ public class ImageSelectionApp extends GUIApp {
 
     constrainTextureClipRect();
 
-    clipBoxWidth = (int)abs(textureClipRectTL.x-textureClipRectBR.x);
-    clipBoxHeight = (int)abs(textureClipRectTL.y-textureClipRectBR.y);
-    clipBoxX = (int)min(textureClipRectTL.x,textureClipRectBR.x);
-    clipBoxY = (int)min(textureClipRectTL.y,textureClipRectBR.y);
+    setClipBoxCoords();
 
+  }
+  
+  private void setClipBoxCoords(){
+	  clipBoxWidth = (int)abs(textureClipRectTL.x-textureClipRectBR.x);
+	  clipBoxHeight = (int)abs(textureClipRectTL.y-textureClipRectBR.y);
+	  clipBoxX = (int)min(textureClipRectTL.x,textureClipRectBR.x);
+	  clipBoxY = (int)min(textureClipRectTL.y,textureClipRectBR.y);
   }
   
   private void dragTriangleSelection(PVector mousePos){
@@ -418,11 +457,9 @@ public class ImageSelectionApp extends GUIApp {
     float x = random((previewImage.width)-wdth);
     float y = random((previewImage.height)-hght);
     
-
     clipBoxX = (int)(x);
     clipBoxY = (int)(y);
 
-    
     setTextureClipRect(new PVector(x,y), new PVector(x+wdth, y+hght));
     
     parent.generate();
@@ -437,23 +474,28 @@ public class ImageSelectionApp extends GUIApp {
   
   private PVector[] getMarqueeTexCoords(){
    
-   PVector[] out = {
-     new PVector(0, 1),
-     new PVector(1, 1),
-     new PVector(1, 0)
-   };
+   if(previewImage != null){
+	   PVector[] out = {
+	     new PVector(textureClipRectTL.x/previewImage.width, textureClipRectTL.y/previewImage.height),
+	     new PVector(textureClipRectTL.x/previewImage.width, textureClipRectBR.y/previewImage.height),
+	     new PVector(textureClipRectBR.x/previewImage.width, textureClipRectBR.y/previewImage.height),
+	     new PVector(-1, -1)
+	   };
+	   
+	   return out;
+   }
     
-   return out;
+   return new PVector[0];
  
   } 
   
   private PVector[] getTriTexCoords(){
-   PVector[] out = new PVector[3];
+   PVector[] out = new PVector[4];
    
    out[0] = new PVector(triangularSelection[0].x/previewImage.width, triangularSelection[0].y/previewImage.height);
    out[1] = new PVector(triangularSelection[1].x/previewImage.width, triangularSelection[1].y/previewImage.height);
    out[2] = new PVector(triangularSelection[2].x/previewImage.width, triangularSelection[2].y/previewImage.height);
-    
+   out[3] = new PVector(1, 1);
    return out;
    
   } 
@@ -594,13 +636,12 @@ public class ImageSelectionApp extends GUIApp {
 		}
   }
   
-  public void saveCropData(){
-	  CatsEye.p5.println("saveCropPressed");
-	  /*
-	   some method here for saving the x0y0,x1y1,x2y2,x3y3 value pairs of the crop box
-	   or, just 3 values if triangle crop
-	   * */
+  public void saveCropData(){  
+		TileGrid gridGenerator = parent.getGrid();
+		JSONObject newSave = gridGenerator.saveAsJSON();
+		//saves.addSave(newSave);
   }
+  
   public void loadCropData(){
 	  CatsEye.p5.println("loadCropPressed");
 	  /*
@@ -664,6 +705,18 @@ private void clearSvgData(){
 	
     fillColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
     strokeColorButton.setColorBackground(CatsEye.p5.color(7,38,62));
+}
+
+private void scaleTexCoordsToImage(){
+	textureClipRectBR.x *= previewImage.width;
+	textureClipRectTL.x *= previewImage.width;
+	textureClipRectBR.y *= previewImage.height;
+	textureClipRectTL.y *= previewImage.height;
+	
+	for(int i = 0; i < triangularSelection.length; ++i){
+		triangularSelection[i].x *= previewImage.width;
+		triangularSelection[i].y *= previewImage.height;
+	}
 }
   
 private void createGuiControlsSVG(int t_listSize){

@@ -30,6 +30,7 @@ public class GUIWindowManager{
 	    f.setLocation(0, windows.size()*150);
 	    f.setResizable(false);
 	    f.setVisible(i_visible);
+	    f.setAlwaysOnTop(true);
 	    windows.put(i_name, f);
 	    childApps.put(i_name, i_child);
 	    return i_child;

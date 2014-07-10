@@ -15,6 +15,9 @@ public class CatsEye extends PApplet{
 	
 	public GUI gui;
 	
+	public static void main(String args[]) {
+		PApplet.main(new String[] { "--present", "com.catseye.CatsEye" });
+	}
 	
 	public void init() {
 		
@@ -33,7 +36,7 @@ public class CatsEye extends PApplet{
 	  
 	  p5 = this;
 		
-	  size(1000, 1000, P2D);
+	  size(displayWidth, displayHeight, P2D);
 	 
 	  gui = new GUI();
 	  

@@ -1,5 +1,6 @@
 package com.catseye.patternComponents.gridGenerators;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
@@ -9,6 +10,7 @@ import processing.data.JSONArray;
 import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
+import com.catseye.gui.components.SavedStateBar;
 import com.catseye.patternComponents.polygonGenerators.Java2DNgonGenerator;
 import com.catseye.patternComponents.polygonGenerators.NGonGenerator;
 import com.catseye.patternComponents.polygonGenerators.P2DIrregularPolygonGenerator;
@@ -30,7 +32,7 @@ public class TileGrid {
   //----------------- CLASS VARIABLES---------------------
 
   protected PGraphics renderContext, gridContext;
-  protected PImage previewImage, gridPreviewImage;
+  protected PImage render, previewImage, gridPreviewImage;
   protected PImage textureImage; 
   protected PImage maskImage;
 
@@ -57,11 +59,12 @@ public class TileGrid {
     renderSize = new PVector(CatsEye.p5.width, CatsEye.p5.height);
     previewSize = new PVector(CatsEye.p5.width, CatsEye.p5. height);
 
-    texCoords = new PVector[3];
+    texCoords = new PVector[4];
     texCoords[0] = new PVector(0, 1);
     texCoords[1] = new PVector(1, 1);
     texCoords[2] = new PVector(1, 0);
-
+    texCoords[3] = new PVector(1, 1);
+    
     cellRadius = 100;
     previewImage = CatsEye.p5.createGraphics(100, 100);
     ((PGraphics)previewImage).beginDraw();
@@ -108,19 +111,20 @@ public class TileGrid {
   public void setTexture(PImage i_texture) {
     textureImage = i_texture.get();
   }
+  
 
   public void setTextureCoords(PVector[] i_texCoords) {
 
-    texCoords = new PVector[3];
-
-    if(i_texCoords != null && i_texCoords[0] != null && i_texCoords[1] != null && i_texCoords[2] != null){
-      texCoords[0] = i_texCoords[0].get();
-      texCoords[1] = i_texCoords[1].get();
-      texCoords[2] = i_texCoords[2].get();
-    }
+    texCoords = new PVector[i_texCoords.length];
+    for(int i = 0; i < i_texCoords.length; ++i)
+    	texCoords[i] = i_texCoords[i];
     
   } 
 
+  public void setRender(PImage i_render){
+	  render = i_render;
+  }
+  
   public void setMask(PImage i_mask) {
     maskImage = i_mask.get();
   }
@@ -161,8 +165,8 @@ public class TileGrid {
 
   //-----getters-----
 
-  public PImage getPrintImage() {
-    return renderContext.get();
+  public PImage getRender() {
+    return render.get();
   }
 
   public PImage getPreviewImage() {  
@@ -176,6 +180,10 @@ public class TileGrid {
     } 
 
     return gridPreviewImage;
+  }
+  
+  public PImage getTextureImage(){
+	  return textureImage;
   }
   
   //this method can be overwritten if child classes need to be setup in order to generate grid preview
@@ -274,11 +282,12 @@ public class TileGrid {
 
   public PVector[] getTextureCoords() {
 
-    PVector[] copy = new PVector[3];
-    copy[0] = texCoords[0].get();
-    copy[1] = texCoords[1].get();
-    copy[2] = texCoords[2].get();
-
+    PVector[] copy = new PVector[texCoords.length];
+    
+    for(int i = 0; i < copy.length; ++i){
+    	copy[i] = texCoords[i].get();
+    }
+    
     return copy;
   } 
 
@@ -306,48 +315,61 @@ public class TileGrid {
 	  return useMask;
   }
 
-  public JSONObject getJSONSave(){
-	   JSONObject json = new JSONObject();
+  public JSONObject saveAsJSON(){
 	   
-	   
-	   json.setString("class", this.getClass().getName());
-	   
-	   json.setFloat("renderX", renderSize.x);
-	   json.setFloat("renderY", renderSize.y);
-	   json.setFloat("previewX", previewSize.x);
-	   json.setFloat("previewY", previewSize.y);
-	   json.setFloat("cellRadius", cellRadius);
-	   json.setFloat("missingOdds", missingOdds);
-	   json.setBoolean("useMask", useMask);
-	   json.setString("renderMode", renderMode);
-	   
-	   
-	   JSONArray texCoordsArr = new JSONArray();
-	   
-	   for(int i = 0; i < texCoords.length; ++i){
-		   JSONObject vec = new JSONObject();
-		   vec.setFloat("x", texCoords[i].x);
-		   vec.setFloat("y", texCoords[i].y);
+	  if(generated){
+		   JSONObject json = new JSONObject();
 		   
-		   texCoordsArr.append(vec);
-	   }
-	   
-	   json.setJSONArray("texCoords", texCoordsArr);
+		   json.setString("class", this.getClass().getName());
+		   
+		   json.setFloat("renderX", renderSize.x);
+		   json.setFloat("renderY", renderSize.y);
+		   json.setFloat("previewX", previewSize.x);
+		   json.setFloat("previewY", previewSize.y);
+		   json.setFloat("cellRadius", cellRadius);
+		   json.setFloat("missingOdds", missingOdds);
+		   json.setBoolean("useMask", useMask);
+		   json.setString("renderMode", renderMode);
+		   
+		   
+		   JSONArray texCoordsArr = new JSONArray();
+		   
+		   for(int i = 0; i < texCoords.length; ++i){
+			   JSONObject vec = new JSONObject();
+			   vec.setFloat("x", texCoords[i].x);
+			   vec.setFloat("y", texCoords[i].y);
+			   
+			   texCoordsArr.append(vec);
+		   }
+		   
+		   json.setJSONArray("texCoords", texCoordsArr);
+	
+		   String savePath = SavedStateBar.SAVEPATH+(new Date().getTime())+"/";
+		   File savePathFile = new File(savePath) ;
+		   
+		   if(!savePathFile.exists())
+			   savePathFile.mkdirs();
+		   
+		   System.out.println(savePathFile.getAbsolutePath());
+		   
+		   if(textureImage != null)
+			   textureImage.save(savePathFile.getAbsolutePath()+"/textureImage.png");
+		   
+		   if(maskImage != null)
+			   maskImage.save(savePathFile.getAbsolutePath()+"/maskImage.png");
+		   
+		   if(render != null)
+			   render.save(savePathFile.getAbsolutePath()+"/previewImage.png");
+		   
+		   
+		   json.setString("savePath", savePathFile.getAbsolutePath()+"/");
+		   CatsEye.p5.saveJSONObject(json, savePathFile.getAbsolutePath()+"/saveData.json");
+		   
+		   return json;
+	  }
 
-	   String saveFolder = "saveFiles/"+(new Date().getTime())+"/";
-	   
-	   if(textureImage != null)
-		   textureImage.save(saveFolder+"textureImage.png");
-	   
-	   if(maskImage != null)
-		   maskImage.save(saveFolder+"maskImage.png");
-	   
-	   if(renderContext != null)
-		   renderContext.save(saveFolder+"previewImage.png");
-	   
-	   json.setString("imageFolder", saveFolder);
-	   
-	   return json;
+	  return null;
+	  
   }
 
 
@@ -407,14 +429,27 @@ public class TileGrid {
    	   	g.useMask(useMaskBool);
    	   	g.setRenderMode(json.getString("renderMode"));
    	   	
-   	   	PImage texImg = CatsEye.p5.loadImage(json.getString("imageFolder")+"textureImage.png");
-   	   	g.setTexture(texImg);
+   	   	JSONArray arr = json.getJSONArray("texCoords");
+   	   	PVector[] loadedTexCoords = new PVector[arr.size()];  
+   	   	for(int i = 0; i < arr.size(); ++i){
+   	   		JSONObject o = arr.getJSONObject(i);
+   	   		loadedTexCoords[i] = new PVector(o.getFloat("x"), o.getFloat("y"));
+   	   	}
    	   	
-   	   	PImage prevImg = CatsEye.p5.loadImage(json.getString("imageFolder")+"previewImage.png");
-   	   	g.overwritePreviewImage(prevImg);
+   	   	g.setTextureCoords(loadedTexCoords);
+
    	   	
-   	   	PImage maskImg = CatsEye.p5.loadImage(json.getString("imageFolder")+"maskImage.png");
-   	   	g.setMask(maskImg);
+   	   	PImage texImg = CatsEye.p5.loadImage(json.getString("savePath")+"textureImage.png");
+   	   	if(texImg != null)
+   	   		g.setTexture(texImg);
+   	   	
+   	   	PImage prevImg = CatsEye.p5.loadImage(json.getString("savePath")+"previewImage.png");
+   	   	if(prevImg != null)
+   	   		g.overwritePreviewImage(prevImg);
+   	   	
+   	   	PImage maskImg = CatsEye.p5.loadImage(json.getString("savePath")+"maskImage.png");
+   	   	if(maskImg != null)
+   	   		g.setMask(maskImg);
    	   	
       }
 	  
@@ -456,7 +491,7 @@ public class TileGrid {
   protected NGonGenerator setupRegularNgonGenerator(int cellSides){
    
     if (renderMode == PApplet.JAVA2D)
-      ngonGenerator = new Java2DNgonGenerator(cellSides, cellRadius, textureImage);
+      ngonGenerator = new Java2DNgonGenerator(cellSides, cellRadius, textureImage, texCoords);
     else
       ngonGenerator = new P2DNgonGenerator(cellSides, cellRadius, textureImage, texCoords);  
    
@@ -515,6 +550,7 @@ public class TileGrid {
       renderContext.endDraw();
       generated = true;
 
+      render = renderContext.get();
       previewImage = renderContext.get();
       previewImage.resize(renderContext.width >= renderContext.height ? (int)previewSize.x : 0, renderContext.height > renderContext.width ? (int)previewSize.y : 0);
     }

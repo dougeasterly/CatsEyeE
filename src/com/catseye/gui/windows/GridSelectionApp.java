@@ -25,6 +25,10 @@ public class GridSelectionApp extends GUIApp {
 	 protected float missingOdds;
 	 
 	 protected Button maskImageButton;
+	 protected Numberbox cellSizeControl;
+	 protected Slider oddsControl;
+	 protected Toggle useMaskControl;
+	 
 	 protected TileGrid currentGrid;
 	 
 	 protected boolean scrolling;
@@ -84,19 +88,33 @@ public class GridSelectionApp extends GUIApp {
 	   
 	   //--------------------------------------PUBLIC METHODS----------------------------------------
 
+	  public void setGrid(TileGrid i_grid){
+		  currentGrid = i_grid; 
+	  }
+	  
 	   public void setCellSize(float i_cellSize){
 		   cellSize = i_cellSize;
 		   currentGrid.setCellRadius(cellSize);
+		   try{
+			   cellSizeControl.setValue(i_cellSize);
+		   }catch(java.lang.NoClassDefFoundError e){}
+		   
 	   }
 	   
 	   public void setUseMask(boolean i_useMask){
 		   useMask = i_useMask;
 		   currentGrid.useMask(useMask);
+		   try{
+			   useMaskControl.setValue(i_useMask);
+		   }catch(java.lang.NoClassDefFoundError e){}
 	   }
 
 	   public void setMissingOdds(float i_missingOdds){
 		   missingOdds = i_missingOdds;
 		   currentGrid.setMissingOdds(missingOdds);
+		   try{
+			   oddsControl.setValue(i_missingOdds);
+		   }catch(java.lang.NoClassDefFoundError e){}
 	   }
 	   
 	   public void setMaskImage(PImage i_maskImage){
@@ -215,7 +233,7 @@ public class GridSelectionApp extends GUIApp {
 	  	 .setBackgroundColor(color(0, 90))
 	  	 .moveTo("global");
 	  
-	  cp5.addNumberbox("cellsize")
+	  cellSizeControl = cp5.addNumberbox("cellsize")
 	  	.setPosition(20, 20)
 	  	.setSize(80, 20)
 	  	.setLabel("Cell Size")
@@ -225,14 +243,14 @@ public class GridSelectionApp extends GUIApp {
 	  	.setGroup("globalControls")
 	  	.plugTo(this, "setCellSize");
 	  
-	  cp5.addSlider("missingOdds")
+	  oddsControl = cp5.addSlider("missingOdds")
 	     .setPosition(120, 20)
 	     .setSize(80, 20)
 	     .setRange(0, 1)
 	     .setGroup("globalControls")
 	     .plugTo(this, "setMissingOdds");
 	  
-	  cp5.addToggle("useMask")
+	  useMaskControl = cp5.addToggle("useMask")
 	  	.setPosition(20, 60)
 	  	.setSize(20, 20)
 	  	.setGroup("globalControls")

@@ -11,20 +11,21 @@ import com.catseye.patternComponents.gridGenerators.TileGrid;
 
 public class SavedStateLoader {
 
-	public static final int PREVIEW_SIZE = 100;
+	public static final int PREVIEW_SIZE = 80;
 	
-	TileGrid tileGrid;
-	PGraphics miniPreview;
+	private TileGrid tileGrid;
+	private PGraphics miniPreview;
 	
 	public SavedStateLoader(JSONObject i_json) {
 		
 		tileGrid = TileGrid.fromJson(i_json);
+		tileGrid.generate();
 		
 		miniPreview = CatsEye.p5.createGraphics(PREVIEW_SIZE, PREVIEW_SIZE, PApplet.JAVA2D);
 		miniPreview.clear();
 		miniPreview.beginDraw();
 		
-		PImage gridImage = tileGrid.getPrintImage().get();
+		PImage gridImage = tileGrid.getRender().get();
 		
 		if(tileGrid.getRenderSize().x > tileGrid.getRenderSize().y)
 			gridImage.resize(PREVIEW_SIZE, 0);
@@ -38,5 +39,15 @@ public class SavedStateLoader {
 		miniPreview.rect(0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
 		
 	}
+	
+	public PImage getImage(){
+		return miniPreview.get();
+	}
+	
+	public TileGrid getGrid(){
+		return tileGrid;
+	}
+	
+	
 	
 }

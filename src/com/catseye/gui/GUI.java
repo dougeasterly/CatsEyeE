@@ -4,6 +4,7 @@ import processing.core.*;
 import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
+import com.catseye.gui.components.SavedStateBar;
 import com.catseye.gui.windows.GUIWindowManager;
 import com.catseye.gui.windows.ImageSelectionApp;
 import com.catseye.gui.windows.VoronoiDelaunayApp;
@@ -69,6 +70,10 @@ public class GUI{
 	gridGenerator = new HexGrid();
     
 	imageWindow = new ImageSelectionApp(this, 600, 700);
+	
+//	SavedStateBar saveLoader = new SavedStateBar(imageWindow);
+//	imageWindow.setSaveBar(saveLoader);
+	
 	voronoiDelaunayWindow = new VoronoiDelaunayApp(this, 600, 600);
 	gridSelector = new GridSelectionApp(this, 600, 600);
 	
@@ -83,7 +88,9 @@ public class GUI{
   }
   
   
-
+  public TileGrid getGrid(){
+	return gridSelector.getTileGrid();
+  }
   
  
   /*
@@ -232,19 +239,23 @@ public class GUI{
   
   public void loadTileGridIntoGUI(TileGrid grid){
 	  
-	  imageWindow.setImage(grid.getPrintImage());
+	  imageWindow.setImage(grid.getTextureImage());
+	  imageWindow.setTextureCoords(grid.getTextureCoords());
 	  setRenderState(grid.getRenderMode());
 	  printWidthField.setValue(grid.getRenderSize().x);
 	  printHeightField.setValue(grid.getRenderSize().y);
 	  gridSelector.setCellSize(grid.getCellRadius());
 	  gridSelector.setMissingOdds(grid.getMissingOdds());
+	  gridSelector.setGrid(grid);
 	  
 	  PImage mskImg = grid.getMaskImage();
 	  
 	  if(mskImg != null)
 		  gridSelector.setMaskImage(mskImg);
 	  
-	  gridSelector.setUseMask(grid.getUseMask()); 
+	  gridSelector.setUseMask(grid.getUseMask());
+	  
+	  generate();
   }
   
   
