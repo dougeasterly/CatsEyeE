@@ -1,4 +1,4 @@
-package com.catseye.gui.windows;
+package com.catseye.gui.guiPanes;
 
 import java.util.List;
 import java.util.ArrayList;

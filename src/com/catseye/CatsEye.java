@@ -3,8 +3,6 @@ package com.catseye;
 import java.awt.Frame;
 
 import com.catseye.gui.GUI;
-import com.catseye.patternComponents.*;
-
 import processing.core.*;
 
 public class CatsEye extends PApplet{

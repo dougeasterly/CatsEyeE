@@ -5,10 +5,13 @@ import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
 import com.catseye.gui.components.SavedStateBar;
-import com.catseye.gui.windows.GUIWindowManager;
-import com.catseye.gui.windows.ImageSelectionApp;
-import com.catseye.gui.windows.VoronoiDelaunayApp;
-import com.catseye.gui.windows.GridSelectionApp;
+import com.catseye.gui.displayTreeObjects.PaneSplitter;
+import com.catseye.gui.displayTreeObjects.Stage;
+import com.catseye.gui.guiPanes.GUIWindowManager;
+import com.catseye.gui.guiPanes.GridSelectionApp;
+import com.catseye.gui.guiPanes.ImageDisplayPane;
+import com.catseye.gui.guiPanes.ImageSelectionApp;
+import com.catseye.gui.guiPanes.VoronoiDelaunayApp;
 import com.catseye.patternComponents.gridGenerators.*;
 import com.catseye.patternComponents.gridGenerators.irregularGrids.VoronoiDelaunayGrid;
 import com.catseye.patternComponents.gridGenerators.regularGrids.GridType;
@@ -28,6 +31,13 @@ public class GUI{
   
   //--------------------GLOBAL VARIABLES-------------------
 
+  Stage mainStage;
+  ImageDisplayPane imageDisplay;
+ 
+  private TileGrid gridGenerator;
+  
+  
+
   GUIWindowManager windowManager;
 	  
   Frame ImageWindowFrame, vdGUIFrame;
@@ -43,12 +53,9 @@ public class GUI{
   
   private int printWidthValue = 1000;
   private int printHeightValue = 1000;
-  private boolean drawGrid = false;
+
   private boolean triggerGeneration = false;
   
-  private PImage backgroundImage;
-  
-  private TileGrid gridGenerator;
 	
   private String savePath;
   
@@ -65,6 +72,10 @@ public class GUI{
   public GUI() {
     cp5 = new ControlP5(CatsEye.p5);
   
+    mainStage = new Stage();
+    imageDisplay = new ImageDisplayPane(new PVector(0, 0), new PVector(Stage.p5.width, Stage.p5.height));
+    mainStage.addChild(imageDisplay);
+    
     globalControlGroup();
     
 	gridGenerator = new HexGrid();
@@ -82,7 +93,6 @@ public class GUI{
     windowManager.addWindow("grid selection", gridSelector, true);
     windowManager.addWindow("voronoi controls", voronoiDelaunayWindow);
         
-    backgroundImage = createCheckerBackground();
     
     setupSavePath();
   }
@@ -101,14 +111,7 @@ public class GUI{
         
 	update();
 	  
-    CatsEye.p5.image(backgroundImage, 0, 0);
-    PImage patternImage = gridGenerator.getPreviewImage();
-    CatsEye.p5.image(patternImage, (CatsEye.p5.width-patternImage.width)/2,  (CatsEye.p5.height-patternImage.height)/2);
-   
-    if(drawGrid){
-      PImage gridImage = gridGenerator.getGridImage();  
-      CatsEye.p5.image(gridImage, (CatsEye.p5.width-gridImage.width)/2,  (CatsEye.p5.height-gridImage.height)/2);
-    }
+	mainStage.draw();
    
     CatsEye.p5.fill(180, 200);
     CatsEye.p5.noStroke();
@@ -270,30 +273,7 @@ public class GUI{
   *   draws a grey and white checker pattern to a PGraphics object
   */
   
-  private PImage createCheckerBackground(){
-   
-    int checkerCount = 100;
-    PGraphics checkerGfx = CatsEye.p5.createGraphics(CatsEye.p5.width, CatsEye.p5.height);
-    
-    float boxWidth = CatsEye.p5.width/(checkerCount+0.0f);
-    
-    checkerGfx.beginDraw();
-    checkerGfx.background(255);
-    checkerGfx.fill(200);
-    checkerGfx.noStroke();
-    
-    for(int i = 0; i < checkerCount; ++i){
-      for(int j = 0; j < checkerCount; ++j){
-       if((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1)){
-         checkerGfx.rect(i*boxWidth, j*boxWidth, boxWidth, boxWidth);
-       }
-      }
-    }
-    
-    checkerGfx.endDraw();  
-    
-    return checkerGfx;
-  }
+
   
   
   
@@ -315,6 +295,8 @@ public class GUI{
     gridGenerator.generate();
     
     triggerGeneration = false;
+    
+    imageDisplay.setImages(gridGenerator.getRender(), gridGenerator.getGridImage());
     
   }
   

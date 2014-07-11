@@ -1,8 +1,10 @@
 package com.catseye.gui.components;
 
+import com.catseye.gui.displayTreeObjects.InteractiveDisplayObject;
+
 import processing.core.PVector;
 
-public class ImageSelectionWidget {
+public class ImageSelectionWidget extends InteractiveDisplayObject{
 
 	protected PVector bounds;
 	protected PVector[] TextureCoordinates;
