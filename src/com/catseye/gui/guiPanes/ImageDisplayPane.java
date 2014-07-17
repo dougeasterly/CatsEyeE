@@ -4,8 +4,8 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PVector;
 
-import com.catseye.gui.displayTreeObjects.DisplayPane;
-import com.catseye.gui.displayTreeObjects.Stage;
+import com.quickdrawProcessing.display.DisplayPane;
+import com.quickdrawProcessing.display.Stage;
 
 public class ImageDisplayPane extends DisplayPane {
 
@@ -39,10 +39,12 @@ public class ImageDisplayPane extends DisplayPane {
 		drawGrid = i_drawGrid;
 	}
 	
-	public void draw(){
-		preDraw();
+	public void draw(PGraphics i_context){
 		
-		clear();
+		PGraphics context = preDraw(i_context);
+		
+		clear(i_context);
+		
 		Stage.p5.image(backgroundCheckers, 0, 0);
 		
 		if(mainImage != null)
@@ -51,7 +53,7 @@ public class ImageDisplayPane extends DisplayPane {
 		if(gridImage != null && drawGrid)
 			Stage.p5.image(gridImage, imageOffset.x, imageOffset.y);
 		
-		postDraw();
+		postDraw(i_context);
 	}
 	
 	

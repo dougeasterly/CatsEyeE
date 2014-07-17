@@ -5,8 +5,6 @@ import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
 import com.catseye.gui.components.SavedStateBar;
-import com.catseye.gui.displayTreeObjects.PaneSplitter;
-import com.catseye.gui.displayTreeObjects.Stage;
 import com.catseye.gui.guiPanes.GUIWindowManager;
 import com.catseye.gui.guiPanes.GridSelectionApp;
 import com.catseye.gui.guiPanes.ImageDisplayPane;
@@ -18,6 +16,8 @@ import com.catseye.patternComponents.gridGenerators.regularGrids.GridType;
 import com.catseye.patternComponents.gridGenerators.regularGrids.HexGrid;
 import com.catseye.patternComponents.gridGenerators.regularGrids.SquareGrid;
 import com.catseye.patternComponents.gridGenerators.regularGrids.TriGrid;
+import com.quickdrawProcessing.display.PaneSplitter;
+import com.quickdrawProcessing.display.Stage;
 
 import java.awt.Frame;
 import java.awt.BorderLayout;

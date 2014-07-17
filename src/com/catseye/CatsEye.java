@@ -1,50 +1,34 @@
 package com.catseye;
 
-import java.awt.Frame;
+import java.applet.Applet;
 
-import com.catseye.gui.GUI;
-import processing.core.*;
+import com.catseye.gui.components.SelectionHandle;
+import com.quickdrawProcessing.display.Stage;
+import com.quickdrawProcessing.processing.QuickdrawProcessing;
 
-public class CatsEye extends PApplet{
+import processing.core.PApplet;
+import processing.core.PVector;
 
-	private static final long serialVersionUID = 9088465710966395469L;
+public class CatsEye extends QuickdrawProcessing{
 
-	public static PApplet p5;
-	
-	public GUI gui;
-	
 	public static void main(String args[]) {
-		PApplet.main(new String[] { "--present", "com.catseye.CatsEye" });
+		PApplet.main(new String[] { "--present", "com.catseye.CatsEye"});
 	}
 	
-	public void init() {
+	public void startQuickdraw(){
 		
-		super.init();
+		SelectionHandle hnd = new SelectionHandle(new PVector(width/2, height/2), new PVector(55,55), mainStage);
+		mainStage.addChild(hnd);
 		
-        Frame[] frames = Frame.getFrames();
-        for (Frame frame : frames) {
-            frame.setMenuBar(null);
-            frame.pack();
-        }
-        
-    }
-	
-	
-	public void setup(){
-	  
-	  p5 = this;
+		for(int i = 0; i < 5; ++i){
+			SelectionHandle hnd2 = new SelectionHandle(new PVector(0,0), new PVector(500-i*90,500-i*90), mainStage);
+			hnd.addChild(hnd2);
+			hnd = hnd2;
+		}
 		
-	  size(displayWidth, displayHeight, P2D);
-	 
-	  gui = new GUI();
-	  
-	  
 	}
 	
-	public void draw(){
-	 
-	  background(180);
-	  gui.drawGui();
+	public void drawQuickdraw(){
 	
 	}
 
