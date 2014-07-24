@@ -10,7 +10,7 @@ public class Stage extends InteractiveDisplayObject{
 	
 	public static PApplet p5;
 	private boolean dragging;
-	private InteractiveDisplayObject selected;
+	private InteractiveDisplayObject selectedChild;
 
 	private static PGraphics stageContext;
 	
@@ -22,7 +22,7 @@ public class Stage extends InteractiveDisplayObject{
 		
 		setPositionFromGlobal(new PVector(0,0));
 		
-		selected = null;
+		selectedChild = null;
 		stage = this;
 		parent = null;
 		
@@ -35,7 +35,6 @@ public class Stage extends InteractiveDisplayObject{
 	}
 	
 	public void draw(){
-		
 		stageContext.background(255);
 		stageContext.beginDraw();
 		draw(stageContext);
@@ -45,6 +44,14 @@ public class Stage extends InteractiveDisplayObject{
 	
 	public boolean isOver(PVector i_position){
 		return true;
+	}
+	
+	public PVector getLocalPosition(){
+		return new PVector();
+	}
+	
+	public PVector getGlobalPosition(){
+		return new PVector();
 	}
 	
 	public void click(PVector i_mousePos) {
@@ -58,28 +65,29 @@ public class Stage extends InteractiveDisplayObject{
 		InteractiveDisplayObject tempSel = getChildAtPoint(i_mousePos);
 		
 		if(tempSel != null && tempSel != this){
-			System.out.println("selected");
-			selected = tempSel;
-			selected.mousePressed(i_mousePos);
+			System.out.println("selectedChild");
+			selectedChild = tempSel;
+			selectedChild.select();
+			selectedChild.mousePressed(i_mousePos);
 			dragging = true;
 		}
 	}
 
 	public void mouseReleased(PVector i_mousePos) {
 		
-		if(selected != null){
-			selected.mouseReleased(i_mousePos);
+		if(selectedChild != null){
+			selectedChild.mouseReleased(i_mousePos);
+			selectedChild.deselect();
 			dragging = false;
-			selected = null;
+			selectedChild = null;
 		}
 		
 	}
 
 	public void updateMouse(PVector i_mousePos) {
 		
-		if(selected != null && dragging){
-			selected.mouseDragged(i_mousePos);
-			System.out.println("dragged");
+		if(selectedChild != null && dragging){
+			selectedChild.mouseDragged(i_mousePos);
 		}
 		
 		for(InteractiveDisplayObject child : children){

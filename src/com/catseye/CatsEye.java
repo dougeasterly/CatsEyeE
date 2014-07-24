@@ -1,12 +1,20 @@
 package com.catseye;
 
 import java.applet.Applet;
+import java.io.File;
 
+import com.catseye.gui.components.ImageSelectionTool;
+import com.catseye.gui.components.ImageSelectionWidget;
+import com.catseye.gui.components.MarqueeSelectionWidget;
 import com.catseye.gui.components.SelectionHandle;
+import com.catseye.gui.components.TriangularSelectionWidget;
+import com.catseye.util.SVGLoader;
 import com.quickdrawProcessing.display.Stage;
 import com.quickdrawProcessing.processing.QuickdrawProcessing;
 
 import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PShape;
 import processing.core.PVector;
 
 public class CatsEye extends QuickdrawProcessing{
@@ -15,21 +23,34 @@ public class CatsEye extends QuickdrawProcessing{
 		PApplet.main(new String[] { "--present", "com.catseye.CatsEye"});
 	}
 	
-	public void startQuickdraw(){
-		
-		SelectionHandle hnd = new SelectionHandle(new PVector(width/2, height/2), new PVector(55,55), mainStage);
-		mainStage.addChild(hnd);
-		
-		for(int i = 0; i < 5; ++i){
-			SelectionHandle hnd2 = new SelectionHandle(new PVector(0,0), new PVector(500-i*90,500-i*90), mainStage);
-			hnd.addChild(hnd2);
-			hnd = hnd2;
-		}
-		
+	public void startQuickdraw(){	   
+		loadImage();
 	}
+	  
 	
 	public void drawQuickdraw(){
 	
 	}
+	
+	public void loadImage(){
+	    Stage.p5.selectInput("Select an image", "loadTextureImage");
+	}
+	
+
+	public void loadTextureImage(File selection) {
+	    
+	    if (selection == null) {
+	      System.out.println("Window was closed or the user hit cancel.");
+	    } 
+	    else {
+	  
+	      String path = selection.getAbsolutePath();
+	      PImage chosenImage = loadImage(path);
+	      
+	      ImageSelectionTool selector = new ImageSelectionTool(new PVector(0,0), new PVector(width/3.0f, height/2.0f), chosenImage, ImageSelectionWidget.MARQUEE);
+	      mainStage.addChild(selector);
+	      
+	    }
+	  }
 
 }

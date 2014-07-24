@@ -9,23 +9,31 @@ import processing.core.PVector;
 public class ImageSelectionTool extends InteractiveDisplayObject{
 
 	private PVector bounds, imagePosition;
-	private PImage image;
+	private PImage displayImage, image;
 	
 	private ImageSelectionWidget grabber;
+	private int selectionMethod;
 	
-	public ImageSelectionTool(PVector i_position, PVector i_size, PImage i_image, int selectionMethod){
+	public ImageSelectionTool(PVector i_position, PVector i_size, PImage i_image, int i_selectionMethod){
 		super(i_position, i_size);
 		
 		bounds = i_size.get();
-		image = i_image;
+		displayImage = i_image.get();
+		displayImage = i_image.get();
 		
-		if(bounds.x > bounds.y)
-			image.resize((int)(bounds.x) , 0);
+		if(bounds.x/displayImage.width < bounds.y/displayImage.height)
+			displayImage.resize((int)(bounds.x-ImageSelectionWidget.HANDLE_SIZE) , 0);
 		else
-			image.resize(0 , (int)(bounds.y));
+			displayImage.resize(0 , (int)(bounds.y-ImageSelectionWidget.HANDLE_SIZE));
 		
-		imagePosition = new PVector(i_size.x/2.0f-image.width/2.0f, i_size.y/2.0f-image.height/2.0f);
-		PVector imageSize = new PVector(image.width, image.height);
+		selectionMethod = i_selectionMethod;
+		
+	}
+	
+	public void addedToStage(){
+		
+		imagePosition = new PVector(size.x/2.0f-displayImage.width/2.0f, size.y/2.0f-displayImage.height/2.0f);
+		PVector imageSize = new PVector(displayImage.width, displayImage.height);
 		
 		if(selectionMethod == ImageSelectionWidget.MARQUEE)
 			grabber = new MarqueeSelectionWidget(imagePosition, imageSize);
@@ -33,6 +41,26 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 			grabber = new TriangularSelectionWidget(imagePosition, imageSize);
 		
 		this.addChild(grabber);
+		
+	}
+	
+	public void changeSelectionTool(int toolType){
+		
+		switch(toolType){
+			case ImageSelectionWidget.MARQUEE:
+				grabber = new MarqueeSelectionWidget(imagePosition, new PVector(displayImage.width, displayImage.height));
+				break;
+			case ImageSelectionWidget.TRIANGULAR:
+				grabber = new TriangularSelectionWidget(imagePosition, new PVector(displayImage.width, displayImage.height));
+				break;
+			default:
+				grabber = new MarqueeSelectionWidget(imagePosition, new PVector(displayImage.width, displayImage.height));
+		}
+		
+	}
+	
+	public boolean isOver(PVector i_position){
+		return inBounds(i_position);
 	}
 	
 	public PVector[] getTextureCoordinates(){
@@ -41,14 +69,20 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 	
 	public void draw(PGraphics i_context){
 		PGraphics context = preDraw(i_context);
-		
-		context.image(image, imagePosition.x, imagePosition.y);
-		
+			context.image(displayImage, imagePosition.x, imagePosition.y);
 		postDraw(i_context);
+	}
+	
+	public void mousePressed(PVector i_mousePos){
+		System.out.println("toolhit");
 	}
 	
 	public PVector getSize(){
 		return new PVector(image.width, image.height);
+	}
+	
+	public PImage getImage(){
+		return image;
 	}
 
 }

@@ -21,11 +21,12 @@ public abstract class InteractiveDisplayObject{
 	protected boolean proportionalSize;
 	private PVector localPosition;
 	private PVector globalPosition;
-	private PVector size;
+	protected PVector size;
 	protected float scale;
 	protected int clearColor;
 	
 	protected boolean mouseIsOver;
+	protected boolean selected;
 	
 	
 	//------------------------------------CONSTRUCTORS------------------------------------------
@@ -35,6 +36,7 @@ public abstract class InteractiveDisplayObject{
 		children = new ArrayList<InteractiveDisplayObject>();
 		
 		localPosition = i_position;
+	
 		size = i_size;
 		scale = 1;
 		proportionalSize = size.x < 1 || size.y < 1;
@@ -79,8 +81,8 @@ public abstract class InteractiveDisplayObject{
 	
 	public void setPositionFromGlobal(PVector i_globalPosition){
 		if(parent != null){
-			localPosition = i_globalPosition.get();
-			globalPosition = PVector.add(i_globalPosition, parent.getPosition());
+			localPosition = PVector.sub(i_globalPosition.get(), parent.getGlobalPosition());
+			globalPosition = i_globalPosition.get();
 		}else{
 			localPosition = i_globalPosition.get();
 			globalPosition = i_globalPosition.get();			
@@ -89,8 +91,8 @@ public abstract class InteractiveDisplayObject{
 	
 	public void setPositionFromLocal(PVector i_localPosition){
 		if(parent != null){
-			localPosition = parent.globalToLocal(i_localPosition);
-			globalPosition = PVector.add(i_localPosition, parent.getPosition());
+			localPosition = i_localPosition.get();
+			globalPosition = PVector.add(i_localPosition, parent.getGlobalPosition());
 		}else{
 			localPosition = i_localPosition.get();
 			globalPosition = i_localPosition.get();
@@ -128,20 +130,22 @@ public abstract class InteractiveDisplayObject{
 	public void addChild(InteractiveDisplayObject i_child){
 		children.add(i_child);
 		i_child.setParent(this);
+		i_child.addedToStage();
 	}
 	
 	public void addChildAt(int i_index, InteractiveDisplayObject i_child){
 		children.add(i_index, i_child);
 		i_child.setParent(this);
+		i_child.addedToStage();
 	}
 	
 	public void draw(){
 		draw(Stage.getStageContext());
 	}
 	
-	public void draw(PGraphics i_context){
-		preDraw(i_context);
-		postDraw(i_context);
+	public boolean inBounds(PVector i_position){
+		PVector localPos = globalToLocal(i_position);
+		return localPos.x > 0 && localPos.x < size.x && localPos.y > 0 && localPos.y < size.y;
 	}
 	
 	public void setUpdateDraw(boolean i_doUpdate){
@@ -175,10 +179,6 @@ public abstract class InteractiveDisplayObject{
 			
 			mouseIsOver = true;
 			
-			for(InteractiveDisplayObject child : children){
-				child.updateMouse(i_mousePos);
-			}
-			
 		}else{
 			
 			if(mouseIsOver){
@@ -192,12 +192,23 @@ public abstract class InteractiveDisplayObject{
 			mouseIsOver = false;
 		}
 		
+		if(insideInteractionBounds(i_mousePos)){
+			for(InteractiveDisplayObject child : children){
+				child.updateMouse(i_mousePos);
+			}	
+		}
+		
 		
 		
 	}
 	
 	public void addCP5Control(Controller i_control, PVector i_position){
 		i_control.setPosition(PVector.add(i_position, globalPosition));
+	}
+	
+	public void addCP5Control(Controller i_control, PVector i_position, String i_function){
+		i_control.setPosition(PVector.add(i_position, globalPosition));
+		i_control.plugTo(this, i_function);
 	}
 
 	//-----------------------------------PROTECTED METHODS------------------------------------
@@ -231,15 +242,17 @@ public abstract class InteractiveDisplayObject{
 		PGraphics currentContext = cacheAsBitmap ? canvas : i_context;
 		
 		for(InteractiveDisplayObject child : children){
-			if(child.redraw)
+			if(child.redraw){
+				child.update();
 				child.draw(currentContext);
+			}
 		}
 		
 	}
 	
 	protected InteractiveDisplayObject getChildAtPoint(PVector i_position){
 		
-		if(this.isOver(i_position)){
+		if(this.insideInteractionBounds(i_position)){
 			
 			for(int i = children.size()-1; i >= 0; --i){
 				
@@ -250,8 +263,10 @@ public abstract class InteractiveDisplayObject{
 					
 			}
 			
-			return this;
 		}
+		
+		if(this.isOver(i_position))
+			return this;
 		
 		return null;
 		
@@ -259,10 +274,32 @@ public abstract class InteractiveDisplayObject{
 		
 	}
 	
+	public void select(){
+		selected = true;
+	}
+	
+	public void deselect(){
+		selected = false;
+	}
+	
 
 	//--------------------------------METHODS TO OVERRIDE IN CHILD CLASSES-------------------------------------------
 	
-	public boolean isOver(PVector i_position){return false;};
+	protected void addedToStage(){}
+	
+	public void update(){};
+	
+	public void draw(PGraphics i_context){
+		preDraw(i_context);
+		postDraw(i_context);
+	}
+	
+	public abstract boolean isOver(PVector i_position);
+	
+	public boolean insideInteractionBounds(PVector i_position){
+		PVector localPos = globalToLocal(i_position);
+		return localPos.x > 0 && localPos.x < size.x && localPos.y > 0 && localPos.y < size.y;
+	}
 	
 	public void mouseEnter(PVector i_mousePos){};
 	
@@ -278,7 +315,9 @@ public abstract class InteractiveDisplayObject{
 	
 	public void keyPressed(char key){};
 	
-	public void actionHook(String i_action){}
+	public void actionHook(InteractiveDisplayObject child, int i_action){}
+
+
 	
 	
 }

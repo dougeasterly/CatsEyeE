@@ -9,4 +9,15 @@ public class DisplayPane extends InteractiveDisplayObject {
 		cacheAsBitmap(true);
 	}
 	
+	@Override
+	public boolean isOver(PVector i_position) {
+		return inBounds(i_position);
+	}
+	
+	
+	
+	public void startResize(){}
+	public void resize(){}
+	public void endResize(){}
+	
 }
