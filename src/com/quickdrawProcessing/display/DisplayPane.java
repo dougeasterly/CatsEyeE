@@ -15,7 +15,6 @@ public class DisplayPane extends InteractiveDisplayObject {
 	}
 	
 	
-	
 	public void startResize(){}
 	public void resize(){}
 	public void endResize(){}

@@ -1,5 +1,6 @@
 package com.quickdrawProcessing.display;
 
+import controlP5.ControlP5;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -9,6 +10,8 @@ public class Stage extends InteractiveDisplayObject{
 	
 	
 	public static PApplet p5;
+	public static ControlP5 cp5;
+	
 	private boolean dragging;
 	private InteractiveDisplayObject selectedChild;
 
@@ -19,6 +22,7 @@ public class Stage extends InteractiveDisplayObject{
 		super(new PVector(0,0), new PVector(i_parentApp.width, i_parentApp.height));
 		
 		p5 = i_parentApp;
+		cp5 = new ControlP5(i_parentApp);
 		
 		setPositionFromGlobal(new PVector(0,0));
 		
@@ -26,8 +30,9 @@ public class Stage extends InteractiveDisplayObject{
 		stage = this;
 		parent = null;
 		
-		stageContext = p5.createGraphics(p5.width, p5.height);
+		stageContext = p5.createGraphics(p5.width, p5.height, PApplet.P2D);
 		redraw = true;
+		cacheAsBitmap = false;
 	}
 	
 	public static PGraphics getStageContext(){
@@ -35,10 +40,11 @@ public class Stage extends InteractiveDisplayObject{
 	}
 	
 	public void draw(){
-		stageContext.background(255);
-		stageContext.beginDraw();
-		draw(stageContext);
-		stageContext.endDraw();
+		p5.background(255);
+			stageContext.beginDraw();
+			stageContext.clear();
+			draw(stageContext);
+			stageContext.endDraw();
 		p5.image(stageContext,0,0);
 	}
 	

@@ -1,23 +1,22 @@
 package com.catseye.gui.components;
 
+import com.quickdrawProcessing.display.InteractiveDisplayObject;
+import com.quickdrawProcessing.display.Stage;
+
 import processing.core.*;
 
-public class GridSelectionButton {
+public class GridSelectionButton extends InteractiveDisplayObject{
 	
 	private static PGraphics highlight;
-	
-	private PApplet parent;
-	
-	private PVector size, position;
 	private PGraphics buttonImage;
 	private String gridType;
-	private boolean selected;
 	
-	public GridSelectionButton(PApplet i_parent, String i_gridType, PVector i_size, PVector i_position, PImage i_previewImage){
+	public GridSelectionButton(PVector i_position, PVector i_size, String i_gridType, PImage i_previewImage){
 		
+		super(i_position, i_size);
 		
 		if(highlight == null){
-			highlight = i_parent.createGraphics((int)i_size.x, (int)i_size.y);
+			highlight = Stage.p5.createGraphics((int)i_size.x, (int)i_size.y);
 			highlight.beginDraw();
 			highlight.fill(0,255,0,40);
 			highlight.stroke(0, 255, 0);
@@ -26,13 +25,11 @@ public class GridSelectionButton {
 			highlight.endDraw();			
 		}
 		
-		parent = i_parent;
 		gridType = i_gridType;
-		position = i_position;
 		selected = false;
 
 		size = i_size;
-		buttonImage = i_parent.createGraphics((int)i_size.x, (int)i_size.y);
+		buttonImage = Stage.p5.createGraphics((int)i_size.x, (int)i_size.y);
 		i_previewImage.resize((int)i_size.x, (int)i_size.y);
 		buttonImage.beginDraw();
 		buttonImage.image(i_previewImage, 0, 0);
@@ -44,34 +41,32 @@ public class GridSelectionButton {
 		
 	}
 	
-	public void setSelected(boolean i_selected){
-		selected = i_selected;
-	}
-	
 	public String getType(){
 		return gridType;
 	}
 	
-	public boolean isPtOver(PVector i_testPoint){
-		return isPtOver(i_testPoint, new PVector(0,0));
-	}
-	
-	public boolean isPtOver(PVector i_testPoint, PVector i_offset){
-		PVector rPos = PVector.add(position, i_offset);
-		return i_testPoint.x > rPos.x && i_testPoint.x < (rPos.x+size.x) && i_testPoint.y > rPos.y && i_testPoint.y < (rPos.y+size.y);
-	}
-	
-	public void draw(){
-		draw(new PVector(0,0));
-	}
-	
-	public void draw(PVector i_offset){
+	public void draw(PGraphics i_context){
 		
-		parent.image(buttonImage, position.x+i_offset.x, position.y+i_offset.y);
-		if(selected){
-			parent.image(highlight, position.x+i_offset.x, position.y+i_offset.y);
+		PGraphics context = preDraw(i_context);
+		
+		context.image(buttonImage, 0, 0);
+		
+		if(mouseIsOver){
+			context.image(highlight, 0, 0);
 		}
 		
+		postDraw(i_context);
+		
+	}
+	
+	@Override
+	public void click(PVector i_mousePos){
+		
+	}
+
+	@Override
+	public boolean isOver(PVector i_position) {
+		return inBounds(i_position);
 	}
 	
 }

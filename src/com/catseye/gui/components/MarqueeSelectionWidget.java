@@ -41,8 +41,8 @@ public class MarqueeSelectionWidget extends ImageSelectionWidget {
 		handles[3].setLabel(BOTTOM_LEFT);
 		
 		addChild(handles[0]);
-		addChild(handles[1]);
 		addChild(handles[2]);
+		addChild(handles[1]);
 		addChild(handles[3]);
 	}
 	

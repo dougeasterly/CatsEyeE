@@ -1,20 +1,25 @@
-package com.catseye.gui.components.selectionPanes;
+package com.catseye.gui.components.selectionPanel;
 
 import processing.core.*;
-import controlP5.*;
 
-public class StandardSelectionPane extends GridSelectionPane {
+public class StandardSelectionPanel extends GridSelectionPanel {
 
 	
 	
-	public StandardSelectionPane(PApplet i_parent, PVector i_size, ControlP5 i_cp5){
-		super(i_parent, i_size, i_cp5);
-		
+	public StandardSelectionPanel(PVector i_position, PVector i_size){
+		super(i_position, i_size);
+	}
+	
+	@Override
+	public void addedToStage(){
+
+		super.addedToStage();
 		addButton("com.catseye.patternComponents.gridGenerators.regularGrids.HexGrid");
 		addButton("com.catseye.patternComponents.gridGenerators.regularGrids.TriGrid");
 		addButton("com.catseye.patternComponents.gridGenerators.regularGrids.SquareGrid");
 
 		createControls();
+
 	}
 	
 	private void createControls(){

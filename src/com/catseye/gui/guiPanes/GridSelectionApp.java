@@ -4,8 +4,8 @@ import java.io.File;
 
 import com.catseye.CatsEye;
 import com.catseye.gui.GUI;
-import com.catseye.gui.components.selectionPanes.GridSelectionPane;
-import com.catseye.gui.components.selectionPanes.StandardSelectionPane;
+import com.catseye.gui.components.selectionPanel.GridSelectionPanel;
+import com.catseye.gui.components.selectionPanel.StandardSelectionPanel;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.catseye.patternComponents.gridGenerators.regularGrids.HexGrid;
 
@@ -17,8 +17,8 @@ public class GridSelectionApp extends GUIApp {
 	
 	 private ControlP5 cp5;
 	
-	 protected GridSelectionPane[] gridSelections;
-	 protected GridSelectionPane currentGridSelection;
+	 protected GridSelectionPanel[] gridSelections;
+	 protected GridSelectionPanel currentGridSelection;
 
 	 protected float cellSize;
 	 protected boolean useMask;
@@ -220,7 +220,7 @@ public class GridSelectionApp extends GUIApp {
 		     .setId(2);
 		  
 		 createGlobalControls();
-		 currentGridSelection = new StandardSelectionPane(this, new PVector(this.appWidth, this.appHeight-180), cp5);
+		 currentGridSelection = new StandardSelectionPanel(this, new PVector(this.appWidth, this.appHeight-180), cp5);
 	}
 	
 	private void createGlobalControls(){

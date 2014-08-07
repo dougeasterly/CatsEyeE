@@ -13,7 +13,7 @@ public abstract class InteractiveDisplayObject{
 	protected PGraphics canvas;
 	protected boolean cacheAsBitmap = false;
 	
-	protected InteractiveDisplayObject parent;
+	protected InteractiveDisplayObject parent, interactionHandler;
 	protected ArrayList<InteractiveDisplayObject> children;
 	
 	protected boolean redraw;
@@ -65,11 +65,15 @@ public abstract class InteractiveDisplayObject{
 		return stage;
 	}
 	
+	public boolean redraw(){
+		return redraw;
+	}
+	
 	public InteractiveDisplayObject getObjectAtPoint(PVector i_position){
 		return getChildAtPoint(i_position);
 	}
 	
-	public PGraphics getContext(){
+	public PGraphics getCacheContext(){
 		
 		if(canvas == null)
 			System.out.println("you must call cacheAsBitmap(true) to set up the drawing context");
@@ -78,6 +82,10 @@ public abstract class InteractiveDisplayObject{
 	}
 	
 	//---setters---
+	
+	public void setInteractionHandler(InteractiveDisplayObject i_handler){
+		interactionHandler = i_handler;
+	}
 	
 	public void setPositionFromGlobal(PVector i_globalPosition){
 		if(parent != null){
@@ -104,6 +112,10 @@ public abstract class InteractiveDisplayObject{
 		
 	}
 	
+	public void redraw(boolean i_redraw){
+		redraw = i_redraw;
+	}
+	
 	public void setParent(InteractiveDisplayObject i_parent){
 		parent = i_parent;
 		globalPosition = PVector.add(localPosition, parent.getGlobalPosition());
@@ -118,11 +130,15 @@ public abstract class InteractiveDisplayObject{
 		clearColor = Stage.p5.color(g);
 	}
 	
+	public boolean cacheAsBitmap(){
+		return cacheAsBitmap;
+	}
+	
 	public void cacheAsBitmap(boolean i_cacheAsBitmap){
 		cacheAsBitmap = i_cacheAsBitmap;
 		
 		if(cacheAsBitmap)
-			canvas = Stage.p5.createGraphics((int)size.x, (int)size.y);
+			canvas = Stage.p5.createGraphics((int)size.x, (int)size.y, Stage.p5.P2D);
 	}
 	
 	//-----------------------------------PUBLIC METHODS------------------------------------
@@ -137,6 +153,11 @@ public abstract class InteractiveDisplayObject{
 		children.add(i_index, i_child);
 		i_child.setParent(this);
 		i_child.addedToStage();
+	}
+	
+	public void removeChild(InteractiveDisplayObject i_child){
+		if(children.contains(i_child))
+			children.remove(i_child);
 	}
 	
 	public void draw(){
@@ -202,12 +223,32 @@ public abstract class InteractiveDisplayObject{
 		
 	}
 	
+	public boolean containsChild(InteractiveDisplayObject i_child){
+		
+		for(InteractiveDisplayObject i : children){
+			if(i == i_child)
+				return true;
+		}
+		
+		return false;
+		
+	}
+	
+	public void addCP5Control(Controller i_control){
+		i_control.setPosition(PVector.add(i_control.getAbsolutePosition(), globalPosition));
+	}
+	
 	public void addCP5Control(Controller i_control, PVector i_position){
 		i_control.setPosition(PVector.add(i_position, globalPosition));
 	}
 	
 	public void addCP5Control(Controller i_control, PVector i_position, String i_function){
 		i_control.setPosition(PVector.add(i_position, globalPosition));
+		i_control.plugTo(this, i_function);
+	}
+	
+	public void addCP5Control(Controller i_control, String i_function){
+		i_control.setPosition(PVector.add(i_control.getAbsolutePosition(), globalPosition));
 		i_control.plugTo(this, i_function);
 	}
 
@@ -223,17 +264,26 @@ public abstract class InteractiveDisplayObject{
 		
 		PGraphics currContext = cacheAsBitmap ? canvas : i_drawContext;
 		
+		if(cacheAsBitmap)
+			currContext.beginDraw();
+		
 		currContext.pushMatrix();
-		currContext.translate(localPosition.x, localPosition.y);
+		
+		if(!cacheAsBitmap)
+			currContext.translate(localPosition.x, localPosition.y);
+		
 		currContext.scale(scale);
 		
 		return currContext;
 	}
 	
-	protected void postDraw(PGraphics i_drawContext){
+	protected void postDraw(PGraphics i_context){
 		
-		drawChildren(i_drawContext);
-		i_drawContext.popMatrix();
+		drawChildren(i_context);
+		i_context.popMatrix();
+		
+		if(cacheAsBitmap)
+			i_context.endDraw();
 		
 	}
 	
@@ -242,10 +292,16 @@ public abstract class InteractiveDisplayObject{
 		PGraphics currentContext = cacheAsBitmap ? canvas : i_context;
 		
 		for(InteractiveDisplayObject child : children){
-			if(child.redraw){
+			
+			if(child.redraw()){
 				child.update();
-				child.draw(currentContext);
+				child.draw(currentContext);	
 			}
+			
+			if(child.cacheAsBitmap()){
+				currentContext.image(child.getCacheContext(), child.getPosition().x, child.getPosition().y);
+			}
+			
 		}
 		
 	}
@@ -290,8 +346,8 @@ public abstract class InteractiveDisplayObject{
 	public void update(){};
 	
 	public void draw(PGraphics i_context){
-		preDraw(i_context);
-		postDraw(i_context);
+		PGraphics currContext = preDraw(i_context);
+		postDraw(currContext);
 	}
 	
 	public abstract boolean isOver(PVector i_position);
