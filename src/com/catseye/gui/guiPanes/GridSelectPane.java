@@ -31,10 +31,10 @@ public class GridSelectPane extends DisplayPane {
 	 
 	 protected TileGrid currentGrid;
 	 protected GridSelectionButton currentButton;
-	 	 
 	
 	public GridSelectPane(PVector i_position, PVector i_size) {
 		super(i_position, i_size);
+		onlyRedrawWhileMouseOver(true);
 		currentGrid = new HexGrid();
 		gridSelections = new GridSelectionPanel[1];
 		gridSelections[0] = new StandardSelectionPanel(new PVector(0,200), new PVector(size.x, size.y-100));
@@ -43,7 +43,7 @@ public class GridSelectPane extends DisplayPane {
 	@Override
 	public void draw(PGraphics i_context){
 		PGraphics context = preDraw(i_context);
-		context.background(100);
+		context.background(clearColor);
 		postDraw(context);
 	}
 	
@@ -51,6 +51,7 @@ public class GridSelectPane extends DisplayPane {
 	public void addedToStage(){
 		addChild(gridSelections[0]);
 		gridCtls = new GridSelectionControls(this, Stage.cp5);
+		draw();
 	}
 	
 

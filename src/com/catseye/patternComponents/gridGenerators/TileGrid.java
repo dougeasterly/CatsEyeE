@@ -10,7 +10,7 @@ import processing.data.JSONArray;
 import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
-import com.catseye.gui.components.SavedStateBar;
+import com.catseye.gui.guiPanes.SavedStatePane;
 import com.catseye.patternComponents.polygonGenerators.Java2DNgonGenerator;
 import com.catseye.patternComponents.polygonGenerators.NGonGenerator;
 import com.catseye.patternComponents.polygonGenerators.P2DIrregularPolygonGenerator;
@@ -337,7 +337,7 @@ public class TileGrid {
 		   
 		   json.setJSONArray("texCoords", texCoordsArr);
 	
-		   String savePath = SavedStateBar.SAVEPATH+(new Date().getTime())+"/";
+		   String savePath = SavedStatePane.SAVEPATH+(new Date().getTime())+"/";
 		   File savePathFile = new File(savePath) ;
 		   
 		   if(!savePathFile.exists())

@@ -6,7 +6,6 @@ import java.awt.Color;
 
 import com.catseye.CatsEye;
 import com.catseye.gui.GUI;
-import com.catseye.gui.components.SavedStateBar;
 import com.catseye.gui.components.SavedStateLoader;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.catseye.util.SVGLoader;
@@ -32,7 +31,7 @@ public class ImageSelectionApp extends GUIApp {
   GUI parent;
   ControlP5 cp5;
   
-  private SavedStateBar saves; 
+  private SavedStatePane saves; 
   
   PImage previewImage, textureImage;
   
@@ -82,7 +81,7 @@ public class ImageSelectionApp extends GUIApp {
     this.appWidth = i_width;
     this.appHeight = i_height;
     
-    saves = new SavedStateBar(this); 
+    saves = new SavedStatePane(this); 
   }
 
   

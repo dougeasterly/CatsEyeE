@@ -24,6 +24,15 @@ public class DisplayPane extends InteractiveDisplayObject {
 		
 	}
 	
+	//call from draw method of child classes
+	public void drawBorder(PGraphics i_context){
+		i_context.noFill();
+		i_context.stroke(0);
+		i_context.strokeWeight(1);
+		i_context.rect(0,0,size.x,size.y);
+		i_context.rect(2,2,size.x-4,size.y-4);
+	}
+	
 	
 	public void startResize(){}
 	public void resize(){}

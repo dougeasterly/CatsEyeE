@@ -20,11 +20,13 @@ public class ImageSelectionPane extends DisplayPane {
 	
 	public ImageSelectionPane(PVector i_position, PVector i_size) {
 		super(i_position, i_size);
+		onlyRedrawWhileMouseOver(true);
 	}
 	
 	@Override
 	protected void addedToStage(){
 		ctls = new ImageSelectionControls(this, Stage.cp5);
+		draw();
 	}
 	
 	public void draw(PGraphics i_context){

@@ -25,7 +25,7 @@ public abstract class InteractiveDisplayObject{
 	protected float scale;
 	protected int clearColor;
 	
-	protected boolean mouseIsOver;
+	protected boolean mouseIsOver, redrawWMO; //redraw while mouse over
 	protected boolean selected;
 	
 	
@@ -66,7 +66,7 @@ public abstract class InteractiveDisplayObject{
 	}
 	
 	public boolean redraw(){
-		return redraw;
+		return redraw && (!redrawWMO || (redrawWMO && mouseIsOver));
 	}
 	
 	public InteractiveDisplayObject getObjectAtPoint(PVector i_position){
@@ -160,6 +160,10 @@ public abstract class InteractiveDisplayObject{
 			children.remove(i_child);
 	}
 	
+	public void onlyRedrawWhileMouseOver(boolean i_redrawWMO){
+		redrawWMO = i_redrawWMO;
+	}
+	
 	public void draw(){
 		draw(Stage.getStageContext());
 	}
@@ -231,7 +235,6 @@ public abstract class InteractiveDisplayObject{
 		}
 		
 		return false;
-		
 	}
 	
 	public void addCP5Control(Controller i_control){
@@ -282,10 +285,18 @@ public abstract class InteractiveDisplayObject{
 		
 		return currContext;
 	}
+
 	
 	protected void postDraw(PGraphics i_context){
+		postDraw(i_context, true);
+	}
+	
+	
+	protected void postDraw(PGraphics i_context, boolean i_doDrawChildren){
 		
-		drawChildren(i_context);
+		if(i_doDrawChildren)
+			drawChildren(i_context);
+		
 		i_context.popMatrix();
 
 		

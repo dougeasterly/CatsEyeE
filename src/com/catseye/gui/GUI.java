@@ -4,11 +4,11 @@ import processing.core.*;
 import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
-import com.catseye.gui.components.SavedStateBar;
 import com.catseye.gui.guiPanes.GUIWindowManager;
 import com.catseye.gui.guiPanes.GridSelectionApp;
 import com.catseye.gui.guiPanes.ImageDisplayPane;
 import com.catseye.gui.guiPanes.ImageSelectionApp;
+import com.catseye.gui.guiPanes.SavedStatePane;
 import com.catseye.gui.guiPanes.VoronoiDelaunayApp;
 import com.catseye.patternComponents.gridGenerators.*;
 import com.catseye.patternComponents.gridGenerators.irregularGrids.VoronoiDelaunayGrid;
