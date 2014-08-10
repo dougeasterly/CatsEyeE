@@ -30,7 +30,7 @@ public class Stage extends InteractiveDisplayObject{
 		stage = this;
 		parent = null;
 		
-		stageContext = p5.createGraphics(p5.width, p5.height, PApplet.P2D);
+		stageContext = p5.createGraphics(p5.width, p5.height, PApplet.JAVA2D);
 		redraw = true;
 		cacheAsBitmap = false;
 	}

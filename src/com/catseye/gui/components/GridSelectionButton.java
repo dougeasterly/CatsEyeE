@@ -1,19 +1,23 @@
 package com.catseye.gui.components;
 
+import com.quickdrawProcessing.display.DisplayPane;
 import com.quickdrawProcessing.display.InteractiveDisplayObject;
 import com.quickdrawProcessing.display.Stage;
 
 import processing.core.*;
 
-public class GridSelectionButton extends InteractiveDisplayObject{
+public class GridSelectionButton extends DisplayPane{
 	
 	private static PGraphics highlight;
 	private PGraphics buttonImage;
 	private String gridType;
 	
+	private boolean isCurrent;
+	
 	public GridSelectionButton(PVector i_position, PVector i_size, String i_gridType, PImage i_previewImage){
 		
 		super(i_position, i_size);
+
 		
 		if(highlight == null){
 			highlight = Stage.p5.createGraphics((int)i_size.x, (int)i_size.y);
@@ -28,7 +32,6 @@ public class GridSelectionButton extends InteractiveDisplayObject{
 		gridType = i_gridType;
 		selected = false;
 
-		size = i_size;
 		buttonImage = Stage.p5.createGraphics((int)i_size.x, (int)i_size.y);
 		i_previewImage.resize((int)i_size.x, (int)i_size.y);
 		buttonImage.beginDraw();
@@ -41,27 +44,36 @@ public class GridSelectionButton extends InteractiveDisplayObject{
 		
 	}
 	
+	@Override
+	public void addedToStage(){
+	}
+	
 	public String getType(){
 		return gridType;
 	}
 	
+	@Override
 	public void draw(PGraphics i_context){
 		
 		PGraphics context = preDraw(i_context);
 		
+		context.clear();
 		context.image(buttonImage, 0, 0);
 		
-		if(mouseIsOver){
+		if(mouseIsOver || isCurrent){
 			context.image(highlight, 0, 0);
 		}
 		
-		postDraw(i_context);
-		
+		postDraw(context);
+	}
+	
+	public void current(boolean i_isCurrent){
+		isCurrent = i_isCurrent;
 	}
 	
 	@Override
 	public void click(PVector i_mousePos){
-		
+		interactionHandler.actionHook(this, 0);
 	}
 
 	@Override

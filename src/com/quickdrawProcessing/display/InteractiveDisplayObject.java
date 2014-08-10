@@ -138,7 +138,7 @@ public abstract class InteractiveDisplayObject{
 		cacheAsBitmap = i_cacheAsBitmap;
 		
 		if(cacheAsBitmap)
-			canvas = Stage.p5.createGraphics((int)size.x, (int)size.y, Stage.p5.P2D);
+			canvas = Stage.p5.createGraphics((int)size.x, (int)size.y, Stage.p5.JAVA2D);
 	}
 	
 	//-----------------------------------PUBLIC METHODS------------------------------------
@@ -248,7 +248,7 @@ public abstract class InteractiveDisplayObject{
 	}
 	
 	public void addCP5Control(Controller i_control, String i_function){
-		i_control.setPosition(PVector.add(i_control.getAbsolutePosition(), globalPosition));
+		i_control.setPosition(PVector.add(i_control.getPosition(), globalPosition));
 		i_control.plugTo(this, i_function);
 	}
 
@@ -262,15 +262,21 @@ public abstract class InteractiveDisplayObject{
 	
 	protected PGraphics preDraw(PGraphics i_drawContext){
 		
-		PGraphics currContext = cacheAsBitmap ? canvas : i_drawContext;
+		PGraphics currContext = cacheAsBitmap() ? canvas : i_drawContext;
 		
-		if(cacheAsBitmap)
+		if(cacheAsBitmap()){
+			
+			if(i_drawContext != null && i_drawContext.isLoaded())
+				i_drawContext.endDraw();
+			
 			currContext.beginDraw();
+		}
 		
 		currContext.pushMatrix();
 		
-		if(!cacheAsBitmap)
+		if(!cacheAsBitmap()){
 			currContext.translate(localPosition.x, localPosition.y);
+		}
 		
 		currContext.scale(scale);
 		
@@ -281,25 +287,26 @@ public abstract class InteractiveDisplayObject{
 		
 		drawChildren(i_context);
 		i_context.popMatrix();
+
 		
-		if(cacheAsBitmap)
+		if(cacheAsBitmap){
 			i_context.endDraw();
+		}
 		
 	}
 	
 	protected void drawChildren(PGraphics i_context){
-		
-		PGraphics currentContext = cacheAsBitmap ? canvas : i_context;
-		
+				
 		for(InteractiveDisplayObject child : children){
 			
 			if(child.redraw()){
 				child.update();
-				child.draw(currentContext);	
+				child.draw(i_context);	
 			}
 			
 			if(child.cacheAsBitmap()){
-				currentContext.image(child.getCacheContext(), child.getPosition().x, child.getPosition().y);
+				i_context.beginDraw();
+				i_context.image(child.getCacheContext(), child.getPosition().x, child.getPosition().y);
 			}
 			
 		}

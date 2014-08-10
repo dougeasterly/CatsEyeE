@@ -1,17 +1,14 @@
 package com.catseye.gui.components.selectionPanel;
 
-import java.util.ArrayList;
 
 import processing.core.*;
 
 import com.catseye.gui.components.GridSelectionButton;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.quickdrawProcessing.display.DisplayPane;
-import com.quickdrawProcessing.display.InteractiveDisplayObject;
 
-import controlP5.ControlP5;
 
-public class GridSelectionPanel extends InteractiveDisplayObject{
+public class GridSelectionPanel extends DisplayPane{
 	
 	public static final PVector BUTTONSIZE = new PVector(100,100);
 	public static final PVector BUTTONSPACE = new PVector(20,20);
@@ -30,7 +27,7 @@ public class GridSelectionPanel extends InteractiveDisplayObject{
 		
 		super(i_position, i_size);
 		
-		buttonPane = new DisplayPane(new PVector(0,0), size);
+		buttonPane  = new DisplayPane(new PVector(0,0), i_size);
 		buttonCount = 0;
 		columns = PApplet.floor((size.x-BUTTONSPACE.x) / (BUTTONSIZE.x+BUTTONSPACE.x));
 		scrollOffset = new PVector(0,0);
@@ -50,16 +47,20 @@ public class GridSelectionPanel extends InteractiveDisplayObject{
 		
 		
 		GridSelectionButton button = new GridSelectionButton(
-				BUTTONSIZE,
 				nextPos,
+				BUTTONSIZE,
 				i_gridClassName,
 				TileGrid.getGridMiniPreview(i_gridClassName, BUTTONSIZE)
 				);
 		
+		button.setInteractionHandler(parent);
+		
+		++buttonCount;
+		
 		buttonPane.addChild(button);
 
 	}
-//	
+
 //	public void scroll(PVector i_amount){
 //		
 //		int rows = PApplet.ceil(buttonCount/(columns+0.0f));
@@ -70,16 +71,17 @@ public class GridSelectionPanel extends InteractiveDisplayObject{
 //			scrollOffset.y = PApplet.constrain(scrollOffset.y, -((rows*(BUTTONSIZE.y+BUTTONSPACE.y)+BUTTONSPACE.y*2) - size.y), 0);
 //		}
 //	}
-	
-	@Override
-	public void draw(PGraphics i_context){	
-		PGraphics context = preDraw(i_context);
-		postDraw(context);
-	}
 
 	@Override
 	public boolean isOver(PVector i_position) {
 		return inBounds(i_position);
 	}
 	
+	@Override
+	public void click(PVector i_position){
+		
+
+			System.out.println("addingChild");
+		
+	}
 }

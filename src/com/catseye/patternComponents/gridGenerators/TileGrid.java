@@ -33,7 +33,7 @@ public class TileGrid {
   //----------------- CLASS VARIABLES---------------------
 
   protected PGraphics renderContext, gridContext;
-  protected PImage render, previewImage, gridPreviewImage;
+  protected PImage render, gridImage;
   protected PImage textureImage; 
   protected PImage maskImage;
 
@@ -67,10 +67,10 @@ public class TileGrid {
     texCoords[3] = new PVector(1, 1);
     
     cellRadius = 100;
-    previewImage = Stage.p5.createGraphics(100, 100);
-    ((PGraphics)previewImage).beginDraw();
-    ((PGraphics)previewImage).background(0, 0);
-    ((PGraphics)previewImage).endDraw();
+    render = Stage.p5.createGraphics(100, 100);
+    ((PGraphics)render).beginDraw();
+    ((PGraphics)render).background(0, 0);
+    ((PGraphics)render).endDraw();
 
     textureImage = Stage.p5.createGraphics(100, 100);
     ((PGraphics)textureImage).beginDraw();
@@ -91,10 +91,10 @@ public class TileGrid {
     setTextureCoords(i_toCopy.getTextureCoords());
     renderMode = i_toCopy.getRenderMode();
 
-    previewImage = Stage.p5.createGraphics(100, 100);
-    ((PGraphics)previewImage).beginDraw();
-    ((PGraphics)previewImage).background(0, 0);
-    ((PGraphics)previewImage).endDraw();
+    render = Stage.p5.createGraphics(100, 100);
+    ((PGraphics)render).beginDraw();
+    ((PGraphics)render).background(0, 0);
+    ((PGraphics)render).endDraw();
 
     textureImage = Stage.p5.createGraphics(100, 100);
     ((PGraphics)textureImage).beginDraw();
@@ -152,10 +152,7 @@ public class TileGrid {
   public void setPreviewSize(PVector i_size) {
     previewSize = i_size;
   }
-  
-  public void overwritePreviewImage(PImage i_preview){
-	  previewImage = i_preview;
-  }
+ 
 
   /***     
    *      This changes between rendering modes. The options are JAVA2D and P2D 
@@ -170,17 +167,13 @@ public class TileGrid {
     return render.get();
   }
 
-  public PImage getPreviewImage() {  
-    return previewImage;
-  }
-
   public PImage getGridImage() {
 
     if (!gridGenerated) {
       regenerateGrid();
     } 
 
-    return gridPreviewImage;
+    return gridImage;
   }
   
   public PImage getTextureImage(){
@@ -261,8 +254,7 @@ public class TileGrid {
   
   public void regenerateGrid(){
     generate(true);
-    gridPreviewImage = gridContext.get();
-    gridPreviewImage.resize(gridContext.width >= gridContext.height ? (int)previewSize.x : 0, gridContext.height > gridContext.width ? (int)previewSize.y : 0);
+    gridImage = gridContext.get();
   }
 
   public PImage getUnitImage() {
@@ -444,10 +436,6 @@ public class TileGrid {
    	   	if(texImg != null)
    	   		g.setTexture(texImg);
    	   	
-   	   	PImage prevImg = Stage.p5.loadImage(json.getString("savePath")+"previewImage.png");
-   	   	if(prevImg != null)
-   	   		g.overwritePreviewImage(prevImg);
-   	   	
    	   	PImage maskImg = Stage.p5.loadImage(json.getString("savePath")+"maskImage.png");
    	   	if(maskImg != null)
    	   		g.setMask(maskImg);
@@ -552,8 +540,6 @@ public class TileGrid {
       generated = true;
 
       render = renderContext.get();
-      previewImage = renderContext.get();
-      previewImage.resize(renderContext.width >= renderContext.height ? (int)previewSize.x : 0, renderContext.height > renderContext.width ? (int)previewSize.y : 0);
     }
     
   }

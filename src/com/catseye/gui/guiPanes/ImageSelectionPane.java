@@ -6,6 +6,7 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PVector;
 
+import com.catseye.CatsEyeController;
 import com.catseye.gui.components.ImageSelectionTool;
 import com.catseye.gui.components.ImageSelectionWidget;
 import com.catseye.gui.p5Plugs.ImageSelectionControls;
@@ -57,6 +58,18 @@ public class ImageSelectionPane extends DisplayPane {
 	    	  addChild(selector);
 	    }
 	  }
+	
+	public void generate(){
+		interactionHandler.actionHook(this,  CatsEyeController.GENERATE);
+	}
+	
+	public PImage getTexture(){
+		return selector.getImage();
+	}
+	
+	public PVector[] getTexCoords(){
+		return selector.getTextureCoordinates();
+	}
 	
 	
 }

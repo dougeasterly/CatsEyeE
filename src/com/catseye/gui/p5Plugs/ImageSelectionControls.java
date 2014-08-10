@@ -20,6 +20,13 @@ public class ImageSelectionControls extends Cp5Plug {
 		.setSize(80,20);
 		
 		i_object.addCP5Control(loadImageBtn, "loadImage");
+		
+		
+		Button generateBtn = cp5.addButton("generate")
+		.setPosition(120, 20)
+		.setSize(80,20);
+				
+		i_object.addCP5Control(generateBtn, "generate");
 	}
 
 }

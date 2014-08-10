@@ -18,7 +18,7 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 		super(i_position, i_size);
 		
 		bounds = i_size.get();
-		displayImage = i_image.get();
+		image = i_image.get();
 		displayImage = i_image.get();
 		
 		if(bounds.x/displayImage.width < bounds.y/displayImage.height)

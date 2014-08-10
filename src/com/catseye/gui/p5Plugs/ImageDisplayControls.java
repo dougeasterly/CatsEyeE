@@ -14,8 +14,9 @@ public class ImageDisplayControls extends Cp5Plug {
 	@Override
 	protected void setupControls(InteractiveDisplayObject i_object) {
 		
+		float xPos = parent.getSize().x-40; 
 		Toggle gridToggle = cp5.addToggle("show grid")
-		.setPosition(parent.getSize().x-40, 20)
+		.setPosition(xPos, 20)
 		.setSize(20,20);
 				
 		i_object.addCP5Control(gridToggle, "drawGrid");
