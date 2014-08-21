@@ -8,7 +8,7 @@ import com.catseye.CatsEye;
 import com.catseye.gui.GUI;
 import com.catseye.gui.components.SavedStateLoader;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
-import com.catseye.util.SVGLoader;
+import com.catseye.util.svgUtils.SVGLoader;
 
 import processing.core.*;
 import processing.data.JSONObject;

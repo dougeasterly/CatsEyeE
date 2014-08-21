@@ -40,6 +40,11 @@ public class GridSelectPane extends DisplayPane {
 		gridSelections[0] = new StandardSelectionPanel(new PVector(0,200), new PVector(size.x, size.y-100));
 	}
 	
+	public void setGrid(TileGrid i_grid){
+		currentGrid = i_grid;
+		gridCtls.setSettingsFromGrid(i_grid);
+	}
+	
 	@Override
 	public void draw(PGraphics i_context){
 		PGraphics context = preDraw(i_context);

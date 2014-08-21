@@ -66,21 +66,24 @@ public class TriangularSelectionWidget extends ImageSelectionWidget{
 	public PVector[] getTexCoords(){
 		PVector[] out = new PVector[4];
 		
+		float xSize = bottomRightBound.x-topLeftBound.x;
+		float ySize = bottomRightBound.y-topLeftBound.y;
+		
 		out[0] = c1.get();
-		out[0].x /= bottomRightBound.x-topLeftBound.x;
-		out[0].y /= bottomRightBound.y-topLeftBound.y;
+		out[0].x /= xSize;
+		out[0].y /= ySize;
 		
 
 		out[1] = c2.get();
-		out[1].x /= bottomRightBound.x-topLeftBound.x;
-		out[1].y /= bottomRightBound.y-topLeftBound.y;
+		out[1].x /= xSize;
+		out[1].y /= ySize;
 				
 
 		out[2] = c3.get();
-		out[2].x /= bottomRightBound.x-topLeftBound.x;
-		out[2].y /= bottomRightBound.y-topLeftBound.y;
+		out[2].x /= xSize;
+		out[2].y /= ySize;
 		
-		out[3] = new PVector(1, 1);
+		out[3] = new PVector(ImageSelectionWidget.TRIANGULAR, ImageSelectionWidget.TRIANGULAR);
 		
 		return out;
 	}
@@ -116,4 +119,27 @@ public class TriangularSelectionWidget extends ImageSelectionWidget{
 		
 		handle.constrain(topLeftBound, bottomRightBound);
 	}
+
+
+	@Override
+	public void setTexCoords(PVector[] i_texCoords) {
+		
+		float xSize = bottomRightBound.x-topLeftBound.x;
+		float ySize = bottomRightBound.y-topLeftBound.y;
+		
+		c1.x = i_texCoords[0].x * xSize;
+		c1.y = i_texCoords[0].y * ySize;
+		
+		c2.x = i_texCoords[1].x * xSize;
+		c2.y = i_texCoords[1].y * ySize;
+		
+		c3.x = i_texCoords[2].x * xSize;
+		c3.y = i_texCoords[2].y * ySize;
+	}
+	
+	@Override 
+	public int getType(){
+		return ImageSelectionWidget.TRIANGULAR; 
+	}
+
 }

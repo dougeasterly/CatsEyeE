@@ -1,5 +1,6 @@
 package com.catseye.gui.components;
 
+import com.catseye.gui.guiPanes.ImageSelectionPane;
 import com.quickdrawProcessing.display.InteractiveDisplayObject;
 
 import processing.core.PGraphics;
@@ -49,21 +50,24 @@ public class MarqueeSelectionWidget extends ImageSelectionWidget {
 	public PVector[] getTexCoords(){
 		PVector[] out = new PVector[4];
 		
+		float xSize = bottomRightBound.x-topLeftBound.x;
+		float ySize = bottomRightBound.y-topLeftBound.y;
+		
 		out[0] = TL.get();
-		out[0].x /= bottomRightBound.x-topLeftBound.x;
-		out[0].y /= bottomRightBound.y-topLeftBound.y;
+		out[0].x /= xSize;
+		out[0].y /= ySize;
 		
 
 		out[1] = TR.get();
-		out[1].x /= bottomRightBound.x-topLeftBound.x;
-		out[1].y /= bottomRightBound.y-topLeftBound.y;
+		out[1].x /= xSize;
+		out[1].y /= ySize;
 				
 
 		out[2] = BR.get();
-		out[2].x /= bottomRightBound.x-topLeftBound.x;
-		out[2].y /= bottomRightBound.y-topLeftBound.y;
+		out[2].x /= xSize;
+		out[2].y /= ySize;
 		
-		out[3] = new PVector(-1, -1);
+		out[3] = new PVector(ImageSelectionWidget.MARQUEE, ImageSelectionWidget.MARQUEE);
 		
 		return out;
 	}
@@ -109,6 +113,32 @@ public class MarqueeSelectionWidget extends ImageSelectionWidget {
 		
 		handle.constrain(topLeftBound, bottomRightBound);
 	}
+
+	@Override
+	public void setTexCoords(PVector[] i_texCoords) {
+
+		float xSize = bottomRightBound.x-topLeftBound.x;
+		float ySize = bottomRightBound.y-topLeftBound.y;
+		
+		TL.x = i_texCoords[0].x*xSize;
+		TL.y = i_texCoords[0].y*ySize;
+		
+		TR.x = i_texCoords[1].x*xSize;
+		TR.y = i_texCoords[1].y*ySize;
+		
+		BR.x = i_texCoords[2].x*xSize;
+		BR.y = i_texCoords[2].y*ySize;
+		
+		BL.x = i_texCoords[0].x*xSize;
+		BL.y = i_texCoords[2].y*ySize;		
+	}
+	
+	@Override
+	public int getType(){
+		return ImageSelectionWidget.MARQUEE;
+	}
+
+
 
 
 }

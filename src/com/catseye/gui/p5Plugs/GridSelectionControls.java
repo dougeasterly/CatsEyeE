@@ -2,6 +2,7 @@ package com.catseye.gui.p5Plugs;
 
 import processing.core.PImage;
 
+import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.quickdrawProcessing.display.InteractiveDisplayObject;
 import com.quickdrawProcessing.gui.Cp5Plug;
 
@@ -14,6 +15,9 @@ import controlP5.Toggle;
 public class GridSelectionControls extends Cp5Plug {
 
 	private Button maskImageButton;
+	Numberbox cellSizeControl;
+	Slider oddsControl;
+	Toggle useMaskControl;
 	
 	public GridSelectionControls(InteractiveDisplayObject i_parent,
 			ControlP5 i_cp5) {
@@ -23,7 +27,7 @@ public class GridSelectionControls extends Cp5Plug {
 	@Override
 	protected void setupControls(InteractiveDisplayObject i_object) {
 		  
-		  Numberbox cellSizeControl = cp5.addNumberbox("cellsize")
+		  cellSizeControl = cp5.addNumberbox("cellsize")
 		  	.setPosition(20, 20)
 		  	.setSize(80, 20)
 		  	.setLabel("Cell Size")
@@ -33,7 +37,7 @@ public class GridSelectionControls extends Cp5Plug {
 		  	
 		  	i_object.addCP5Control(cellSizeControl, "cellSize");
 		  
-		  Slider oddsControl = cp5.addSlider("missing odds")
+		   oddsControl = cp5.addSlider("missing odds")
 		     .setPosition(120, 20)
 		     .setSize(80, 20)
 		     .setRange(0, 1);
@@ -41,7 +45,7 @@ public class GridSelectionControls extends Cp5Plug {
 		  i_object.addCP5Control(oddsControl, "missingOdds");
 
 		  
-		  Toggle useMaskControl = cp5.addToggle("useMask")
+		  useMaskControl = cp5.addToggle("useMask")
 		  	.setPosition(20, 60)
 		  	.setSize(20, 20);
 		  
@@ -64,6 +68,19 @@ public class GridSelectionControls extends Cp5Plug {
 	       tempImg.resize(0, 80);
 	   
 	    maskImageButton.setImage(tempImg);
+	}
+	
+	public void setSettingsFromGrid(TileGrid i_grid){
+		
+		PImage mskImg = i_grid.getMaskImage();
+		
+		if(mskImg != null)
+			maskImageButton.setImage(mskImg);
+		
+		cellSizeControl.setValue(i_grid.getCellRadius());
+		oddsControl.setValue(i_grid.getMissingOdds());
+		useMaskControl.setValue(i_grid.getUseMask());
+		
 	}
 
 }

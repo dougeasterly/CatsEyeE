@@ -71,7 +71,6 @@ public class Stage extends InteractiveDisplayObject{
 		InteractiveDisplayObject tempSel = getChildAtPoint(i_mousePos);
 		
 		if(tempSel != null && tempSel != this){
-			System.out.println("selectedChild");
 			selectedChild = tempSel;
 			selectedChild.select();
 			selectedChild.mousePressed(i_mousePos);

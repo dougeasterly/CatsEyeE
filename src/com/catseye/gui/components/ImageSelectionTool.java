@@ -1,5 +1,6 @@
 package com.catseye.gui.components;
 
+import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.quickdrawProcessing.display.InteractiveDisplayObject;
 
 import processing.core.PGraphics;
@@ -8,16 +9,27 @@ import processing.core.PVector;
 
 public class ImageSelectionTool extends InteractiveDisplayObject{
 
-	private PVector bounds, imagePosition;
-	private PImage displayImage, image;
+	protected PVector bounds, imagePosition;
+	protected PImage displayImage, image;
 	
-	private ImageSelectionWidget grabber;
-	private int selectionMethod;
+	protected ImageSelectionWidget grabber;
+	protected int selectionMethod;
+	
+	public ImageSelectionTool(PVector i_position, PVector i_size){
+		super(i_position, i_size);		
+	}
 	
 	public ImageSelectionTool(PVector i_position, PVector i_size, PImage i_image, int i_selectionMethod){
 		super(i_position, i_size);
 		
 		bounds = i_size.get();
+		setTexture(i_image);
+		
+		selectionMethod = i_selectionMethod;
+	}
+	
+	public void setTexture(PImage i_image){
+		
 		image = i_image.get();
 		displayImage = i_image.get();
 		
@@ -25,8 +37,6 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 			displayImage.resize((int)(bounds.x-ImageSelectionWidget.HANDLE_SIZE) , 0);
 		else
 			displayImage.resize(0 , (int)(bounds.y-ImageSelectionWidget.HANDLE_SIZE));
-		
-		selectionMethod = i_selectionMethod;
 		
 	}
 	
@@ -46,6 +56,8 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 	
 	public void changeSelectionTool(int toolType){
 		
+		removeChild(grabber);
+		
 		switch(toolType){
 			case ImageSelectionWidget.MARQUEE:
 				grabber = new MarqueeSelectionWidget(imagePosition, new PVector(displayImage.width, displayImage.height));
@@ -56,6 +68,8 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 			default:
 				grabber = new MarqueeSelectionWidget(imagePosition, new PVector(displayImage.width, displayImage.height));
 		}
+		
+		addChild(grabber);
 		
 	}
 	
@@ -83,6 +97,25 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 	
 	public PImage getImage(){
 		return image;
+	}
+	
+	public void setSettingsFromGrid(TileGrid i_grid){
+		grabber.setTexCoords(i_grid.getTextureCoords());
+	}
+	
+	public int toggleMarqueeType(){
+		if(grabber.getType() == ImageSelectionWidget.MARQUEE){
+			changeSelectionTool(ImageSelectionWidget.TRIANGULAR);
+		}
+		else{
+			changeSelectionTool(ImageSelectionWidget.MARQUEE);
+		}
+		
+		return grabber.getType();
+	}
+	
+	public int getSelectionType(){
+		return grabber.getType();
 	}
 
 }

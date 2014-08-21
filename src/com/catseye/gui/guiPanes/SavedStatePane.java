@@ -4,9 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 
 import com.catseye.CatsEye;
+import com.catseye.HandlerActions;
 import com.catseye.gui.components.SavedStateLoader;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.quickdrawProcessing.display.DisplayPane;
+import com.quickdrawProcessing.display.InteractiveDisplayObject;
 import com.quickdrawProcessing.display.Stage;
 
 import processing.core.PApplet;
@@ -14,40 +16,48 @@ import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.data.JSONObject;
 
-public class SavedStatePane extends DisplayPane implements Runnable{
+public class SavedStatePane extends DisplayPane{
 
 	public static final String SAVEPATH = "data/saveData/"; 
 	
-	protected Thread loaderThread;
 	protected PVector saveSize, saveSpace;
-	protected int saveCount = 0;
+	
+	protected ArrayList<SavedStateLoader> saves;
 	
 	public SavedStatePane(PVector i_position, PVector i_size) {
 		super(i_position, i_size);
 		
+		saves = new ArrayList<SavedStateLoader>();
 		saveSize = new PVector(i_size.y-40, i_size.y-40);
 		saveSpace = new PVector(20, 20);
+		
+		onlyRedrawWhileMouseOver(true);
+		draw();
 	}
 	
 	public void addSave(JSONObject jsonString){
+		int saveCount = saves.size();
 		SavedStateLoader ldr = new SavedStateLoader(new PVector(saveCount*(saveSize.x+saveSpace.x)+saveSpace.x, saveSpace.y), saveSize, jsonString);
+		ldr.setInteractionHandler(interactionHandler);
 		addChild(ldr);
+		saves.add(ldr);
+		draw();
 	}
 	
 	@Override
 	public void addedToStage(){
-		loaderThread = new Thread(this);
-		loaderThread.start();
+		loadFiles();
 	}
 	
 	public void draw(PGraphics i_context){
 		PGraphics context = preDraw(i_context);
 		context.background(180);
+		context.fill(0);
+		context.text("Saved files ", 20, 15);
 		postDraw(context);
 	}
 
-	@Override
-	public void run() {
+	public void loadFiles() {
 
 		File[] files = listFiles(SAVEPATH);
 		
@@ -82,5 +92,21 @@ public class SavedStatePane extends DisplayPane implements Runnable{
 		   return null;
 		 }
 	}
+
+	@Override
+	public void actionHook(InteractiveDisplayObject i_obj, int i_action){
+		
+		if(i_action == HandlerActions.CLOSE){
+			removeChild(i_obj);
+			int ind = saves.indexOf(i_obj);
+			for(int i = ind; i < saves.size(); ++i){
+				saves.get(i).setPositionFromLocal(new PVector((i-1)*(saveSize.x+saveSpace.x)+saveSpace.x, saveSpace.y));
+			}
+			saves.remove(i_obj);
+			
+		}
+		
+	}
+	
 	
 }

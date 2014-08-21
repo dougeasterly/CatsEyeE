@@ -81,6 +81,10 @@ public abstract class InteractiveDisplayObject{
 		return canvas;
 	}
 	
+	public boolean mouseIsOver(){
+		return mouseIsOver;
+	}
+	
 	//---setters---
 	
 	public void setInteractionHandler(InteractiveDisplayObject i_handler){
@@ -95,6 +99,8 @@ public abstract class InteractiveDisplayObject{
 			localPosition = i_globalPosition.get();
 			globalPosition = i_globalPosition.get();			
 		}
+		
+		updateChildrenPositions();
 	}
 	
 	public void setPositionFromLocal(PVector i_localPosition){
@@ -105,6 +111,8 @@ public abstract class InteractiveDisplayObject{
 			localPosition = i_localPosition.get();
 			globalPosition = i_localPosition.get();
 		}
+		
+		updateChildrenPositions();
 	}
 	
 	
@@ -158,6 +166,13 @@ public abstract class InteractiveDisplayObject{
 	public void removeChild(InteractiveDisplayObject i_child){
 		if(children.contains(i_child))
 			children.remove(i_child);
+	}
+	
+	public void updateChildrenPositions(){
+		for(InteractiveDisplayObject child : children){
+			child.setPositionFromLocal(child.getPosition());
+			child.updateChildrenPositions();
+		}
 	}
 	
 	public void onlyRedrawWhileMouseOver(boolean i_redrawWMO){

@@ -4,7 +4,9 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PVector;
 
+import com.catseye.HandlerActions;
 import com.catseye.gui.p5Plugs.ImageDisplayControls;
+import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.quickdrawProcessing.display.DisplayPane;
 import com.quickdrawProcessing.display.Stage;
 
@@ -15,7 +17,7 @@ public class ImageDisplayPane extends DisplayPane {
 	private PVector imageOffset;
 	private PImage backgroundCheckers, mainImage, gridImage;
 	private boolean drawGrid;
-	
+		
 	public ImageDisplayPane(PVector i_position, PVector i_size){
 		super(i_position, i_size);
 	}
@@ -33,7 +35,7 @@ public class ImageDisplayPane extends DisplayPane {
 		mainImage = i_mainImage.get();
 		gridImage = i_gridImage.get();
 		
-		if(i_mainImage.width < i_mainImage.height){
+		if(size.x/(i_mainImage.width+0.0) < size.y/(i_mainImage.height+0.0)){
 			mainImage.resize((int)this.size.x, 0);
 			gridImage.resize((int)this.size.x, 0);
 		}else{	
@@ -64,7 +66,15 @@ public class ImageDisplayPane extends DisplayPane {
 		if(gridImage != null && drawGrid)
 			context.image(gridImage, imageOffset.x, imageOffset.y);
 		
+		context.fill(0, 150);
+		context.noStroke();
+		context.rect(0, 0, size.x, 60);
+		
 		postDraw(context);
+	}
+	
+	public void setSettingsFromGrid(TileGrid i_grid){
+		setImages(i_grid.getRender(), i_grid.getGridImage());
 	}
 	
 	
@@ -92,6 +102,14 @@ public class ImageDisplayPane extends DisplayPane {
 	    checkerGfx.endDraw();  
 	    
 	    return checkerGfx;
+	}
+	
+	public void saveSettings(){
+		interactionHandler.actionHook(this, HandlerActions.SAVESETTINGS);
+	}
+	
+	public void saveImage(){
+		interactionHandler.actionHook(this, HandlerActions.SAVEIMAGE);
 	}
 
 	

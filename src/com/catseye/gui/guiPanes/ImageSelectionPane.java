@@ -7,9 +7,11 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 import com.catseye.CatsEyeController;
+import com.catseye.HandlerActions;
 import com.catseye.gui.components.ImageSelectionTool;
 import com.catseye.gui.components.ImageSelectionWidget;
 import com.catseye.gui.p5Plugs.ImageSelectionControls;
+import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.quickdrawProcessing.display.DisplayPane;
 import com.quickdrawProcessing.display.Stage;
 
@@ -18,9 +20,15 @@ public class ImageSelectionPane extends DisplayPane {
 	ImageSelectionControls ctls;
 	ImageSelectionTool selector;
 	
+	protected String printWidth, printHeight;
+	protected boolean isLoaded = false;
+	
 	public ImageSelectionPane(PVector i_position, PVector i_size) {
 		super(i_position, i_size);
 		onlyRedrawWhileMouseOver(true);
+		
+		printWidth="1000";
+		printHeight="1000";
 	}
 	
 	@Override
@@ -54,15 +62,60 @@ public class ImageSelectionPane extends DisplayPane {
 	      
 	      removeChild(selector);
 	      
-	      selector = new ImageSelectionTool(new PVector(0,70), new PVector(size.x, size.y-70), chosenImage, ImageSelectionWidget.MARQUEE);
-	      
-	      if(!containsChild(selector))
-	    	  addChild(selector);
+	      int selectionType = selector == null || selector.getSelectionType() == ImageSelectionWidget.MARQUEE ? ImageSelectionWidget.MARQUEE : ImageSelectionWidget.TRIANGULAR;
+	      setImageTool(chosenImage, selectionType);
+	      updateMarqueeToggle();
 	    }
 	  }
 	
+	public void setImageTool(PImage i_image, int i_marqueeType){
+		
+		removeChild(selector);
+		
+		selector = new ImageSelectionTool(new PVector(0,70), new PVector(size.x, size.y-70), i_image, i_marqueeType);
+	      
+	    addChild(selector);
+	    
+	    isLoaded = true;
+	}
+	
+	public void toggleMarquee(){
+		
+		if(selector != null){
+			selector.toggleMarqueeType();
+			updateMarqueeToggle();
+			draw();
+		}
+	}
+	
+	public void setSettingsFromGrid(TileGrid i_grid){
+		PVector renderSize = i_grid.getRenderSize();
+		printWidth = ((int)renderSize.x)+"";
+		printHeight= ((int)renderSize.y)+"";
+		
+		
+		int marqueeType =  (int)i_grid.getTextureCoords()[3].x;
+		setImageTool(i_grid.getTextureImage(), marqueeType);
+		updateMarqueeToggle();
+		
+		selector.setSettingsFromGrid(i_grid);
+		selector.draw();
+		
+		ctls.setSettingsFromGrid(i_grid);
+	}
+	
+	public void updateMarqueeToggle(){
+		ctls.setSelectionMarqueeLabel(selector.getSelectionType() == ImageSelectionWidget.MARQUEE ? "Triangular Selector" : "Marquee Selector");
+	}
+	
 	public void generate(){
-		interactionHandler.actionHook(this,  CatsEyeController.GENERATE);
+		interactionHandler.actionHook(this,  HandlerActions.GENERATE);
+	}
+	
+	public PVector getRenderSize(){
+		int w = Integer.parseInt(printWidth);
+		int h = Integer.parseInt(printHeight);
+		return new PVector(w,h);
 	}
 	
 	public PImage getTexture(){
@@ -73,5 +126,8 @@ public class ImageSelectionPane extends DisplayPane {
 		return selector.getTextureCoordinates();
 	}
 	
+	public boolean isLoaded(){
+		return isLoaded;
+	}
 	
 }

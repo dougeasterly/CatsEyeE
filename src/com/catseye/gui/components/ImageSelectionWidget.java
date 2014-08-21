@@ -6,7 +6,7 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PVector;
 
-public class ImageSelectionWidget extends InteractiveDisplayObject{
+public abstract class ImageSelectionWidget extends InteractiveDisplayObject{
 
 	protected static final int HANDLE_SIZE = 15;
 	protected static final int EDGE_SIZE = 2;
@@ -23,25 +23,6 @@ public class ImageSelectionWidget extends InteractiveDisplayObject{
 	public ImageSelectionWidget(PVector i_position, PVector i_size){
 		super(i_position, i_size);
 	}
-	
-	public boolean isOver(PVector i_position){
-		return false;
-	}
-	
-	public PVector[] getTexCoords(){
-		return new PVector[0];
-	}
-	
-	public void draw(PGraphics i_context){
-		PGraphics context = preDraw(i_context);		
-		postDraw(context);
-	}
-	
-	public PVector getBoundedRegion(){
-		return null;
-	}
-	
-	public void setBounds(PVector i_topLeft, PVector i_bottomRight){}
 
 	public void mousePressed(PVector i_mousePos){
 		pMouse = i_mousePos.get();
@@ -65,6 +46,12 @@ public class ImageSelectionWidget extends InteractiveDisplayObject{
 		PVector localPos = globalToLocal(i_position);
 		return localPos.x > -HANDLE_SIZE && localPos.x < getSize().x + HANDLE_SIZE && localPos.y > -HANDLE_SIZE && localPos.y < getSize().y+HANDLE_SIZE;
 	}
+	
+	
+	public abstract int getType();
+	public abstract void setBounds(PVector i_topLeft, PVector i_bottomRight);
+	public abstract PVector[] getTexCoords();
+	public abstract void setTexCoords(PVector[] i_texCoords);
 	
 	
 }

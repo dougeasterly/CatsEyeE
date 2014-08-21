@@ -44,7 +44,7 @@ public class TileGrid {
   protected float missingOdds = 0; //a number between 0 and 1 that represents a random chance a tile will be missing 
   protected float cellRadius;
   protected PVector cellSize;
-  protected PVector renderSize, previewSize;
+  protected PVector renderSize;
   protected PVector[] texCoords;
 
   protected boolean useMask;
@@ -58,7 +58,6 @@ public class TileGrid {
 
     //default settings
     renderSize = new PVector(Stage.p5.width, Stage.p5.height);
-    previewSize = new PVector(Stage.p5.width, Stage.p5. height);
 
     texCoords = new PVector[4];
     texCoords[0] = new PVector(0, 1);
@@ -83,7 +82,6 @@ public class TileGrid {
 
     //default settings
     renderSize = i_toCopy.getRenderSize();
-    previewSize = i_toCopy.getPreviewSize();
     cellRadius = i_toCopy.getCellRadius();
     maskImage = i_toCopy.getMaskImage();
     useMask = i_toCopy.isUsingMask();
@@ -147,10 +145,6 @@ public class TileGrid {
 
   public void useMask(boolean i_useMask) {
     useMask = i_useMask;
-  }
-
-  public void setPreviewSize(PVector i_size) {
-    previewSize = i_size;
   }
  
 
@@ -236,7 +230,6 @@ public class TileGrid {
     	g.setRenderMode(PApplet.JAVA2D);
     	g.setCellRadius(i_size.x/4.0f);
       	g.setRenderSize(i_size);
-      	g.setPreviewSize(i_size);
       	return g.getMiniGridImage(i_size);
       }else{
 	 
@@ -267,10 +260,6 @@ public class TileGrid {
 
   public PVector getRenderSize() {
     return renderSize.get();
-  }
-
-  public PVector getPreviewSize() {
-    return previewSize.get();
   }
 
   public PVector[] getTextureCoords() {
@@ -315,10 +304,8 @@ public class TileGrid {
 		   
 		   json.setString("class", this.getClass().getName());
 		   
-		   json.setFloat("renderX", renderSize.x);
-		   json.setFloat("renderY", renderSize.y);
-		   json.setFloat("previewX", previewSize.x);
-		   json.setFloat("previewY", previewSize.y);
+		   json.setFloat("renderWidth", renderSize.x);
+		   json.setFloat("renderHeight", renderSize.y);
 		   json.setFloat("cellRadius", cellRadius);
 		   json.setFloat("missingOdds", missingOdds);
 		   json.setBoolean("useMask", useMask);
@@ -343,7 +330,6 @@ public class TileGrid {
 		   if(!savePathFile.exists())
 			   savePathFile.mkdirs();
 		   
-		   System.out.println(savePathFile.getAbsolutePath());
 		   
 		   if(textureImage != null)
 			   textureImage.save(savePathFile.getAbsolutePath()+"/textureImage.png");
@@ -351,9 +337,17 @@ public class TileGrid {
 		   if(maskImage != null)
 			   maskImage.save(savePathFile.getAbsolutePath()+"/maskImage.png");
 		   
-		   if(render != null)
-			   render.save(savePathFile.getAbsolutePath()+"/previewImage.png");
+		   if(render != null){		   
+			   PImage previewImage = render.get();
+			   
+			   if(render.width > render.height)
+				   previewImage.resize(100, 0);
+			   else
+				   previewImage.resize(0, 100);
+			   
+			   previewImage.save(savePathFile.getAbsolutePath()+"/previewImage.png");
 		   
+		   }
 		   
 		   json.setString("savePath", savePathFile.getAbsolutePath()+"/");
 		   Stage.p5.saveJSONObject(json, savePathFile.getAbsolutePath()+"/saveData.json");
@@ -414,8 +408,7 @@ public class TileGrid {
       
       if(g != null){
     	  	  
-   	   	g.setRenderSize(new PVector(json.getFloat("renderX"), json.getFloat("renderY")));
-   	   	g.setPreviewSize(new PVector(json.getFloat("previewX"), json.getFloat("previewY")));
+   	   	g.setRenderSize(new PVector(json.getFloat("renderWidth"), json.getFloat("renderHeight")));
    	   	g.setCellRadius(json.getFloat("cellRadius"));
    	   	g.setMissingOdds(json.getFloat("missingOdds"));
    	   	boolean useMaskBool = json.getBoolean("useMask");
