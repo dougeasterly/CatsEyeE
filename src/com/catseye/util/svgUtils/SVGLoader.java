@@ -32,7 +32,7 @@ public class SVGLoader{
 	public static final int FILL_BUTTON = 0; 
 	public static final int STROKE_BUTTON = 1;
 	
-	private boolean dirty = false;
+	private boolean dirty, disabledStyle = false;
 	private boolean editing, editModeSetup = false;
 	
 	private int svgWidth, svgHeight;
@@ -48,7 +48,6 @@ public class SVGLoader{
 	private ArrayList<SvgLayerSettings> layerSettings;
 	
 	//color
-
 	private int pressedButtonType;
 	private int selectedLayer;
 
@@ -80,6 +79,10 @@ public class SVGLoader{
 	 
 	 public void editMode(boolean i_useEditMode){
 		 editing = i_useEditMode;
+		 disabledStyle = editing;
+		
+		 if(editing) mySvg.disableStyle();
+		 else mySvg.enableStyle();
 		 
 		 if(editing && !editModeSetup)
 			 setupEditMode();
@@ -91,8 +94,7 @@ public class SVGLoader{
 	 }
 	 
 	  public PImage drawRaw() {
-	
-		  mySvg.enableStyle();
+		  
 		  svgCanvas.clear();
 		  svgCanvas.beginDraw();
 		  svgCanvas.smooth();
@@ -119,11 +121,15 @@ public class SVGLoader{
 		    	svgCanvas.stroke(layer.getStroke());
 		    	svgCanvas.strokeWeight(layer.getStrokeWeight());
 		    	
-		    	if(!layer.getUseFill())
+		    	if(!layer.getUseFill()){
 		    		svgCanvas.noFill();
+		    		svgCanvas.fill(0,0);
+		    	}
 		    	
-		    	if(!layer.getUseStroke())
+		    	if(!layer.getUseStroke()){
 		    		svgCanvas.noStroke();
+		    		svgCanvas.stroke(0,0);
+		    	}
 		    	
 		    	svgCanvas.shape(children[i], 0, 0);
 			}
@@ -138,8 +144,6 @@ public class SVGLoader{
 	  }
 	  
 	  public void setupEditMode(){
- 
-		mySvg.disableStyle();
 		
 	    for (int i = 0; i<childCount; ++i) {
 	    	SvgLayerSettings layer = new SvgLayerSettings(i, childCount);
@@ -150,6 +154,14 @@ public class SVGLoader{
 	    
 	  }
 	  
+	  
+	  public ArrayList<SvgLayerSettings> getLayers(){
+		  return layerSettings;
+	  }
+	  
+	  public SvgLayerSettings getLayerSettings(int i_layer){
+		  return layerSettings.get(i_layer);
+	  }
 	  
 	 public int getChildCount(){
 		 return childCount;
@@ -179,7 +191,7 @@ public class SVGLoader{
 	    	layerSettings.get(i_child).setUseFill(i_useFill);
 	  }
 	  
-	  public void setStrokeBoolean (int i_child, boolean i_useStroke){
+	  public void setUseStroke(int i_child, boolean i_useStroke){
 	    	layerSettings.get(i_child).setUseStroke(i_useStroke);
 	  }
 	  	
@@ -251,7 +263,7 @@ public class SVGLoader{
 			}
 		  	
 		  	draw();
-    
+		  	
     	}
     	
     	public void stateChanged(ChangeEvent e) {
@@ -261,10 +273,6 @@ public class SVGLoader{
 		public void actionPerformed(ActionEvent arg0) {
 			update();
 		}
-
-    	
-
-	
     	
     	
     	

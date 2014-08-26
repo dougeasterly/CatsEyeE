@@ -40,6 +40,7 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 		
 	}
 	
+	@Override
 	public void addedToStage(){
 		
 		imagePosition = new PVector(size.x/2.0f-displayImage.width/2.0f, size.y/2.0f-displayImage.height/2.0f);
@@ -91,7 +92,7 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 		System.out.println("toolhit");
 	}
 	
-	public PVector getSize(){
+	public PVector getImageSize(){
 		return new PVector(image.width, image.height);
 	}
 	
@@ -117,5 +118,7 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 	public int getSelectionType(){
 		return grabber.getType();
 	}
+	
+	public void destroy(){}
 
 }

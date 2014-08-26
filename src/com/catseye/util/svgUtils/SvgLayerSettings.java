@@ -65,7 +65,6 @@ public class SvgLayerSettings {
 		useFill = i_useFill;
 	}
 	
-	
 	public void setStroke(int i_color){
 		strokeColor = i_color;
 	}
@@ -81,8 +80,7 @@ public class SvgLayerSettings {
 	public void setStroke(Color i_color){
 		strokeColor = Stage.p5.color(i_color.getRed(), i_color.getGreen(), i_color.getBlue());
 	}
-	
-	
+
 	public void setFill(int i_color){
 		fillColor = i_color;
 	}

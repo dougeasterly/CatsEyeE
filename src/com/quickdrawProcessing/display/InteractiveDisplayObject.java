@@ -2,11 +2,17 @@ package com.quickdrawProcessing.display;
 
 import java.util.ArrayList;
 
+import controlP5.ControlEvent;
+import controlP5.ControlGroup;
+import controlP5.ControlListener;
 import controlP5.Controller;
+import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
 
-public abstract class InteractiveDisplayObject{
+
+@SuppressWarnings("rawtypes")
+public abstract class InteractiveDisplayObject implements ControlListener{
 	
 	protected static Stage stage;
 	
@@ -146,7 +152,7 @@ public abstract class InteractiveDisplayObject{
 		cacheAsBitmap = i_cacheAsBitmap;
 		
 		if(cacheAsBitmap)
-			canvas = Stage.p5.createGraphics((int)size.x, (int)size.y, Stage.p5.JAVA2D);
+			canvas = Stage.p5.createGraphics((int)size.x, (int)size.y, PApplet.JAVA2D);
 	}
 	
 	//-----------------------------------PUBLIC METHODS------------------------------------
@@ -268,6 +274,11 @@ public abstract class InteractiveDisplayObject{
 	public void addCP5Control(Controller i_control, String i_function){
 		i_control.setPosition(PVector.add(i_control.getPosition(), globalPosition));
 		i_control.plugTo(this, i_function);
+	}
+	
+	public void addCP5Control(ControlGroup i_control){
+		i_control.setPosition(PVector.add(i_control.getPosition(), globalPosition));
+		i_control.addListener(this);
 	}
 
 	//-----------------------------------PROTECTED METHODS------------------------------------
@@ -406,7 +417,7 @@ public abstract class InteractiveDisplayObject{
 	
 	public void actionHook(InteractiveDisplayObject child, int i_action){}
 
-
+	public void controlEvent(ControlEvent i_controller) {}
 	
 	
 }

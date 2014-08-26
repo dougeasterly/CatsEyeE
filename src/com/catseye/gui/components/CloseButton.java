@@ -21,7 +21,6 @@ public class CloseButton extends InteractiveDisplayObject {
 			else
 				context.fill(255,0,0);
 			
-			
 			context.noStroke();
 			context.rect(0, 0, size.x, size.y);
 			context.stroke(255);

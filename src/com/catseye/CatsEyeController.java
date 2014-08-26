@@ -78,7 +78,6 @@ public class CatsEyeController extends InteractiveDisplayObject{
 				
 				System.gc();
 				
-				
 				if(selector.isLoaded()){
 					TileGrid grid = gridPane.getTileGrid();
 					grid.setRenderSize(selector.getRenderSize());
