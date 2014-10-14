@@ -83,9 +83,7 @@ public class ImageSelectionTool extends InteractiveDisplayObject{
 	}
 	
 	public void draw(PGraphics i_context){
-		PGraphics context = preDraw(i_context);
-			context.image(displayImage, imagePosition.x, imagePosition.y);
-		postDraw(i_context);
+		i_context.image(displayImage, imagePosition.x, imagePosition.y);
 	}
 	
 	public void mousePressed(PVector i_mousePos){

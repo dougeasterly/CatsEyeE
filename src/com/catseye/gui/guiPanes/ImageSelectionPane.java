@@ -23,7 +23,7 @@ public class ImageSelectionPane extends DisplayPane {
 	ImageSelectionControls ctls;
 	ImageSelectionTool selector;
 	
-	protected String printWidth, printHeight;
+	protected static String printWidth, printHeight;
 	protected boolean isLoaded = false;
 	
 	public ImageSelectionPane(PVector i_position, PVector i_size) {
@@ -31,20 +31,20 @@ public class ImageSelectionPane extends DisplayPane {
 		
 		printWidth="1000";
 		printHeight="1000";
+		drawBorder = true;
+
 	}
 	
 	@Override
 	protected void addedToStage(){
 		ctls = new ImageSelectionControls(this, Stage.cp5);
-		draw();
+		redrawNow();
 	}
 	
 	public void draw(PGraphics i_context){
-		PGraphics currentContext = preDraw(i_context);
-			currentContext.fill(clearColor);
-			currentContext.noStroke();
-			currentContext.rect(0, 0, size.x, size.y);
-		postDraw(currentContext);
+		i_context.fill(clearColor);
+		i_context.noStroke();
+		i_context.rect(0, 0, size.x, size.y);
 	}
 
 	public void loadImage(){
@@ -111,7 +111,7 @@ public class ImageSelectionPane extends DisplayPane {
 		if(selector != null){
 			selector.toggleMarqueeType();
 			updateMarqueeToggle();
-			draw();
+			redrawNow();
 		}
 	}
 	
@@ -126,7 +126,7 @@ public class ImageSelectionPane extends DisplayPane {
 		updateMarqueeToggle();
 		
 		selector.setSettingsFromGrid(i_grid);
-		selector.draw();
+		selector.redrawNow();
 		
 		ctls.setSettingsFromGrid(i_grid);
 	}
@@ -139,7 +139,7 @@ public class ImageSelectionPane extends DisplayPane {
 		interactionHandler.actionHook(this,  HandlerActions.GENERATE);
 	}
 	
-	public PVector getRenderSize(){
+	public static PVector getRenderSize(){
 		int w = Integer.parseInt(printWidth);
 		int h = Integer.parseInt(printHeight);
 		return new PVector(w,h);

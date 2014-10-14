@@ -20,13 +20,14 @@ public class ImageDisplayPane extends DisplayPane {
 		
 	public ImageDisplayPane(PVector i_position, PVector i_size){
 		super(i_position, i_size);
+		drawBorder = true;
 	}
 	
 	@Override
 	public void addedToStage(){
 		backgroundCheckers = createCheckerBackground();
 		displayCtls = new ImageDisplayControls(this, Stage.cp5);
-		draw(canvas);
+		redrawNow();
 		redraw = false;
 	}
 	
@@ -44,33 +45,30 @@ public class ImageDisplayPane extends DisplayPane {
 		}
 		
 		imageOffset = new PVector(this.size.x/2.0f - mainImage.width/2.0f, this.size.y/2.0f - mainImage.height/2.0f);
-		draw(canvas);
+		redrawNow();
 	}
 	
 	public void drawGrid(boolean i_drawGrid){
 		drawGrid = i_drawGrid;
-		draw(canvas);
+		redrawNow();
 	}
 	
 	public void draw(PGraphics i_context){
+				
+		clear(i_context);
 		
-		PGraphics context = preDraw(i_context);
-		
-		clear(context);
-		
-		context.image(backgroundCheckers, 0, 0);
+		i_context.image(backgroundCheckers, 0, 0);
 		
 		if(mainImage != null)
-			context.image(mainImage, imageOffset.x, imageOffset.y);
+			i_context.image(mainImage, imageOffset.x, imageOffset.y);
 		
 		if(gridImage != null && drawGrid)
-			context.image(gridImage, imageOffset.x, imageOffset.y);
+			i_context.image(gridImage, imageOffset.x, imageOffset.y);
 		
-		context.fill(0, 150);
-		context.noStroke();
-		context.rect(0, 0, size.x, 60);
+		i_context.fill(0, 150);
+		i_context.noStroke();
+		i_context.rect(0, 0, size.x, 60);
 		
-		postDraw(context);
 	}
 	
 	public void setSettingsFromGrid(TileGrid i_grid){

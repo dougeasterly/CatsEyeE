@@ -44,8 +44,10 @@ public class Stage extends InteractiveDisplayObject{
 			stageContext.beginDraw();
 			stageContext.clear();
 			draw(stageContext);
+			drawChildren(stageContext);
 			stageContext.endDraw();
 		p5.image(stageContext,0,0);
+		
 	}
 	
 	public boolean isOver(PVector i_position){

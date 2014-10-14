@@ -39,7 +39,6 @@ public class SVGLoader{
 	private float scale = 1.0f;
 	
 	//graphics
-	public PImage display;
 	private  PGraphics svgCanvas; 
 	protected PShape mySvg;
 	
@@ -101,8 +100,7 @@ public class SVGLoader{
 		  svgCanvas.shape(mySvg, 0, 0);
 		  svgCanvas.endDraw();
 		  
-		  display = svgCanvas.get();
-		  return display;
+		  return svgCanvas;
 	  
 	  }
 	  
@@ -135,11 +133,10 @@ public class SVGLoader{
 			}
 			
 			svgCanvas.endDraw();
-			display = svgCanvas.get();
-			
+
 			dirty = true;
 			
-			return display;
+			return svgCanvas;
 			
 	  }
 	  

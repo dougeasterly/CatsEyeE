@@ -63,17 +63,14 @@ public class SelectionHandle extends InteractiveDisplayObject {
 	}
 	
 	public void draw(PGraphics i_context){
-		
-		PGraphics context = preDraw(i_context);
-		
+				
 		if(!mouseIsOver)
-			context.fill(255,0,0);
+			i_context.fill(255,0,0);
 		else
-			context.fill(100,255,100);
+			i_context.fill(100,255,100);
 		
-		context.noStroke();
-		context.ellipse(0, 0, radius*2, radius*2);
-		postDraw(i_context);
+		i_context.noStroke();
+		i_context.ellipse(0, 0, radius*2, radius*2);
 	}
 	
 	public void mouseDragged(PVector i_mousePos){
