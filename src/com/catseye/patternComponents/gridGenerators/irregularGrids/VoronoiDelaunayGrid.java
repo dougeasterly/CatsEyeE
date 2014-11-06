@@ -12,15 +12,19 @@ package com.catseye.patternComponents.gridGenerators.irregularGrids;
  *---------------------------------------------------------------------------------------------*/
 
 import processing.core.*;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
 import toxi.geom.*;
 import toxi.geom.mesh2d.*;
 import toxi.util.datatypes.*;
 
+import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.catseye.patternComponents.polygonGenerators.P2DIrregularPolygonGenerator;
+import com.quickdrawProcessing.display.Stage;
 
 
 public class VoronoiDelaunayGrid extends TileGrid {
@@ -55,8 +59,6 @@ public class VoronoiDelaunayGrid extends TileGrid {
     
     xpos= new BiasedFloatRange(-renderSize.x*0.5f, renderSize.x*1.5f, renderSize.x/2, 0.222f);
     ypos= new BiasedFloatRange(-renderSize.x*0.5f, renderSize.y*1.5f, renderSize.y/2, 0.222f);
-    
-
   }
   
   public PImage getMiniGridImage(PVector i_size) {
@@ -149,6 +151,41 @@ public class VoronoiDelaunayGrid extends TileGrid {
     
   }
 
+  @Override
+  public JSONObject saveAsJSON(){
+	  
+	  JSONObject json = super.saveAsJSON(false);
+	  
+	  String path = json.getString("savePath");
+	  
+	  
+	  JSONArray pointsArr = new JSONArray();
+	   
+	   for(Vec2D i : voronoi.getSites()){
+		   JSONObject vec = new JSONObject();
+		   vec.setFloat("x", i.x);
+		   vec.setFloat("y", i.y);
+		   
+		   pointsArr.append(vec);
+	   }
+	   
+	   json.setJSONArray("VDPoints", pointsArr);
+	  
+	   
+	  File savePathFile = new File(path);
+	  
+	  
+	  if(!savePathFile.exists())
+		   savePathFile.mkdirs();
+	  
+	  Stage.p5.saveJSONObject(json, savePathFile.getAbsolutePath()+"/saveData.json");
+	   
+	   
+	  
+	  return json;
+  
+  }
+  
   
 }
 

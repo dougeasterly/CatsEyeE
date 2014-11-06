@@ -103,11 +103,11 @@ public class ImageDisplayPane extends DisplayPane {
 	}
 	
 	public void saveSettings(){
-		interactionHandler.actionHook(this, HandlerActions.SAVESETTINGS);
+		interactionHandler.actionHook(this, HandlerActions.SAVE_SETTINGS);
 	}
 	
 	public void saveImage(){
-		interactionHandler.actionHook(this, HandlerActions.SAVEIMAGE);
+		interactionHandler.actionHook(this, HandlerActions.SAVE_IMAGE);
 	}
 
 	

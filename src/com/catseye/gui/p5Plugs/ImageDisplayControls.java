@@ -36,7 +36,7 @@ public class ImageDisplayControls extends Cp5Plug {
 		
 		
 		Button saveSettingsBtn = cp5.addButton("save settings")
-			.setPosition(i_object.getSize().x - 100, 20)
+			.setPosition(160, 20)
 				.setSize(80,20);
 	    
 		i_object.addCP5Control(saveSettingsBtn, "saveSettings");

@@ -1,8 +1,11 @@
 package com.catseye.gui.components.selectionPanel;
 
 
+import java.util.ArrayList;
+
 import processing.core.*;
 
+import com.catseye.HandlerActions;
 import com.catseye.gui.components.GridSelectionButton;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.quickdrawProcessing.display.DisplayPane;
@@ -18,7 +21,7 @@ public class GridSelectionPanel extends DisplayPane{
 	
 	protected PVector scrollOffset;
 	protected int columns;
-	//protected ArrayList<GridSelectionButton> buttons;
+	protected ArrayList<GridSelectionButton> buttons;
 	protected int buttonCount;
 	
 	protected GridSelectionButton selected_btn;
@@ -34,6 +37,8 @@ public class GridSelectionPanel extends DisplayPane{
 		buttonCount = 0;
 		columns = PApplet.floor((size.x-BUTTONSPACE.x) / (BUTTONSIZE.x+BUTTONSPACE.x));
 		scrollOffset = new PVector(0,0);
+		
+		buttons = new ArrayList<GridSelectionButton>();
 	}
 
 	@Override
@@ -42,6 +47,7 @@ public class GridSelectionPanel extends DisplayPane{
 		addChild(buttonPane);
 	}
 	
+
 	public void addButton(String i_gridClassName){
 		
 		float buttonX = BUTTONSPACE.x + (buttonCount%columns)*(BUTTONSIZE.x+BUTTONSPACE.x);
@@ -57,12 +63,27 @@ public class GridSelectionPanel extends DisplayPane{
 				TileGrid.getGridMiniPreview(i_gridClassName, BUTTONSIZE)
 				);
 		
-		button.setInteractionHandler(this);
+		if(buttonCount == 0){
+			currentButton = button;
+			button.current(true);
+		}
 		
+		button.setInteractionHandler(this);
+		buttons.add(button);
 		++buttonCount;
 		
 		buttonPane.addChild(button);
 
+	}
+	
+	public void setGrid(TileGrid i_grid){
+		currentGrid = i_grid;
+		
+		for(GridSelectionButton i : buttons){
+			if(i.getType().equals(i_grid.getClass().getName())){
+				actionHook(i, HandlerActions.UPDATE_GRID);
+			}
+		}
 	}
 	
 	@Override
@@ -76,6 +97,7 @@ public class GridSelectionPanel extends DisplayPane{
 		currentButton.current(true);
 		
 		currentGrid = TileGrid.getGridFromClassString(btn.getType(), currentGrid);
+		interactionHandler.actionHook(this, HandlerActions.UPDATE_GRID);
 	}
 
 	public TileGrid getGrid(){

@@ -3,6 +3,7 @@ package com.catseye.gui.components.selectionPanel;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.catseye.HandlerActions;
 import com.catseye.gui.guiPanes.ImageSelectionPane;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.catseye.patternComponents.gridGenerators.irregularGrids.VoronoiDelaunayGrid;
@@ -27,6 +28,8 @@ public class VoronoiDelaunaySelectionPanel extends GridSelectionPanel {
 	  ArrayList<PVector> points;
 	  Voronoi voronoi;
 	  PolygonClipper2D clip;
+	  
+	  VoronoiDelaunayGrid grid;
 	
 	public VoronoiDelaunaySelectionPanel(PVector i_position, PVector i_size) {
 		super(i_position, i_size);
@@ -35,10 +38,10 @@ public class VoronoiDelaunaySelectionPanel extends GridSelectionPanel {
 		gridType = VoronoiDelaunayGrid.VORONOI;
 		voronoi = new Voronoi();
 		clip=new SutherlandHodgemanClipper(new Rect(0, 0, i_size.x, i_size.y));
+		grid = new VoronoiDelaunayGrid();
 	}
 	
 	public void addedToStage(){
-		clearPoints();
 	}
 	
 	
@@ -48,7 +51,13 @@ public class VoronoiDelaunaySelectionPanel extends GridSelectionPanel {
 	  }
 		  
 	  public void addPoint(PVector i_point){
+		  addPoint(i_point, true);
+	  }
+	  
+	  public void addPoint(PVector i_point, boolean i_doCalculate){
 		  points.add(i_point);
+		  if(i_doCalculate)
+			  calculateVoronoi();
 	  }
 	  
 	  public void addRandomPoints() {
@@ -78,26 +87,32 @@ public class VoronoiDelaunaySelectionPanel extends GridSelectionPanel {
 	  
 	  public void setGridType(int i_type){
 	    gridType = i_type;
+	    grid.setType(gridType);
 	  }
 	  
 	  
-	 private void calculateVoronoi(){
+	 public void calculateVoronoi(){
 	        
         voronoi = new Voronoi();
         
         for(PVector i : points){
           voronoi.addPoint(new Vec2D(i.x, i.y));
         }
+ 
+        interactionHandler.actionHook(this, HandlerActions.UPDATE_GRID);
         
 	 }
 	 
+	 
+	 
 	 @Override
 	 public TileGrid getGrid(){
-		 VoronoiDelaunayGrid grid = new VoronoiDelaunayGrid();
-		 grid.setType(gridType);
+		 
+		 grid.clearPoints();
 		 PVector renderSize = new PVector(ImageSelectionPane.getRenderSize().x, ImageSelectionPane.getRenderSize().y);
 		 grid.setRenderSize(renderSize);
 		 grid.addNormalizedPoints(renderSize, getNormalizedPoints());
+		 
 		 return grid;
 	 }
 	 

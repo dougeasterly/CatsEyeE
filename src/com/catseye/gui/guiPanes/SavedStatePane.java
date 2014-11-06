@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import com.catseye.CatsEye;
+import com.catseye.CatsEyeController;
 import com.catseye.HandlerActions;
 import com.catseye.gui.components.SavedStateLoader;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
@@ -17,8 +18,6 @@ import processing.core.PVector;
 import processing.data.JSONObject;
 
 public class SavedStatePane extends DisplayPane{
-
-	public static final String SAVEPATH = "data/saveData/"; 
 	
 	protected PVector saveSize, saveSpace;
 	
@@ -58,7 +57,7 @@ public class SavedStatePane extends DisplayPane{
 
 	public void loadFiles() {
 
-		File[] files = listFiles(SAVEPATH);
+		File[] files = listFiles(CatsEyeController.SAVE_PATH+"/saveData/");
 		
 		if(files != null){
 			for(int i = 0; i < files.length; ++i){

@@ -6,7 +6,7 @@ import processing.core.*;
 
 public class StandardSelectionPanel extends GridSelectionPanel {
 
-	
+	boolean generated = false;
 	
 	public StandardSelectionPanel(PVector i_position, PVector i_size){
 		super(i_position, i_size);
@@ -17,12 +17,15 @@ public class StandardSelectionPanel extends GridSelectionPanel {
 	@Override
 	public void addedToStage(){
 
-		super.addedToStage();
-		addButton("com.catseye.patternComponents.gridGenerators.regularGrids.HexGrid");
-		addButton("com.catseye.patternComponents.gridGenerators.regularGrids.TriGrid");
-		addButton("com.catseye.patternComponents.gridGenerators.regularGrids.SquareGrid");
-
-		createControls();
+		if(!generated){
+			super.addedToStage();
+			addButton("com.catseye.patternComponents.gridGenerators.regularGrids.HexGrid");
+			addButton("com.catseye.patternComponents.gridGenerators.regularGrids.TriGrid");
+			addButton("com.catseye.patternComponents.gridGenerators.regularGrids.SquareGrid");
+	
+			createControls();	
+			generated = true;
+		}
 	}
 	
 	private void createControls(){

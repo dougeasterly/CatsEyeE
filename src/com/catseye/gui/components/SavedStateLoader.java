@@ -67,7 +67,7 @@ public class SavedStateLoader extends InteractiveDisplayObject{
 	
 	@Override
 	public void click(PVector i_mousePosition){
-		interactionHandler.actionHook(this, HandlerActions.LOADSETTINGS);
+		interactionHandler.actionHook(this, HandlerActions.LOAD_SETTINGS);
 	}
 	
 	public PImage getImage(){
@@ -79,7 +79,15 @@ public class SavedStateLoader extends InteractiveDisplayObject{
 		tileGrid.generate();
 		return tileGrid;
 	}
+	
+	public int getGridTab(){
+		return json.getInt("tab");
+	}
 
+	public JSONObject getJSON(){
+		return json;
+	}
+	
 	@Override
 	public boolean isOver(PVector i_position) {
 		return inBounds(i_position);

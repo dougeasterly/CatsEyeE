@@ -2,7 +2,11 @@ package com.quickdrawProcessing.display;
 
 import java.util.ArrayList;
 
+import controlP5.ControlEvent;
+import controlP5.ControlListener;
 import controlP5.Controller;
+import controlP5.ControllerGroup;
+import controlP5.RadioButton;
 import processing.core.PGraphics;
 import processing.core.PVector;
 
@@ -142,6 +146,9 @@ public abstract class InteractiveDisplayObject{
 		parent = i_parent;
 		globalPosition = PVector.add(localPosition, parent.getGlobalPosition());
 		clearColor = Stage.p5.color(180);
+		
+		if(interactionHandler == null)
+			interactionHandler = i_parent;
 	}
 	
 	public void setClearColor(float r, float g, float b){
@@ -283,6 +290,11 @@ public abstract class InteractiveDisplayObject{
 		i_control.setPosition(PVector.add(i_control.getPosition(), globalPosition));
 		i_control.plugTo(this, i_function);
 	}
+	
+	public void addCP5Control(RadioButton i_control, String i_function){
+		i_control.setPosition(PVector.add(i_control.getPosition(), globalPosition));
+		i_control.plugTo(this, i_function);
+	}
 
 	//-----------------------------------PROTECTED METHODS------------------------------------
 	
@@ -417,8 +429,6 @@ public abstract class InteractiveDisplayObject{
 	public void keyPressed(char key){};
 	
 	public void actionHook(InteractiveDisplayObject child, int i_action){}
-
-
 	
 	
 }

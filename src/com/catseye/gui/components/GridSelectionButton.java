@@ -1,5 +1,6 @@
 package com.catseye.gui.components;
 
+import com.catseye.HandlerActions;
 import com.quickdrawProcessing.display.DisplayPane;
 import com.quickdrawProcessing.display.InteractiveDisplayObject;
 import com.quickdrawProcessing.display.Stage;
@@ -70,7 +71,7 @@ public class GridSelectionButton extends DisplayPane{
 	
 	@Override
 	public void click(PVector i_mousePos){
-		interactionHandler.actionHook(this, 0);
+		interactionHandler.actionHook(this, HandlerActions.UPDATE_GRID);
 	}
 
 	@Override

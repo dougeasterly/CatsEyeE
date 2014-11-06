@@ -10,6 +10,8 @@ import processing.data.JSONArray;
 import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
+import com.catseye.CatsEyeController;
+import com.catseye.gui.guiPanes.GridSelectPane;
 import com.catseye.gui.guiPanes.SavedStatePane;
 import com.catseye.patternComponents.polygonGenerators.Java2DNgonGenerator;
 import com.catseye.patternComponents.polygonGenerators.NGonGenerator;
@@ -298,11 +300,16 @@ public class TileGrid {
   }
 
   public JSONObject saveAsJSON(){
+	  return saveAsJSON(true);
+  }
+  
+  public JSONObject saveAsJSON(boolean i_doSave){
 	   
 	  if(generated){
 		   JSONObject json = new JSONObject();
 		   
 		   json.setString("class", this.getClass().getName());
+		   json.setInt("tab", GridSelectPane.getCurrentTab());
 		   
 		   json.setFloat("renderWidth", renderSize.x);
 		   json.setFloat("renderHeight", renderSize.y);
@@ -324,12 +331,9 @@ public class TileGrid {
 		   
 		   json.setJSONArray("texCoords", texCoordsArr);
 	
-		   String savePath = SavedStatePane.SAVEPATH+(new Date().getTime())+"/";
+		   String savePath = CatsEyeController.SAVE_PATH+"/saveData/"+(new Date().getTime())+"/";
+		   System.out.println(savePath);
 		   File savePathFile = new File(savePath) ;
-		   
-		   if(!savePathFile.exists())
-			   savePathFile.mkdirs();
-		   
 		   
 		   if(textureImage != null)
 			   textureImage.save(savePathFile.getAbsolutePath()+"/textureImage.png");
@@ -350,7 +354,14 @@ public class TileGrid {
 		   }
 		   
 		   json.setString("savePath", savePathFile.getAbsolutePath()+"/");
-		   Stage.p5.saveJSONObject(json, savePathFile.getAbsolutePath()+"/saveData.json");
+		   
+		   if(i_doSave){
+			   
+			   if(!savePathFile.exists())
+				   savePathFile.mkdirs();
+			   
+			   Stage.p5.saveJSONObject(json, savePathFile.getAbsolutePath()+"/saveData.json");
+		   }
 		   
 		   return json;
 	  }
@@ -423,7 +434,6 @@ public class TileGrid {
    	   	}
    	   	
    	   	g.setTextureCoords(loadedTexCoords);
-
    	   	
    	   	PImage texImg = Stage.p5.loadImage(json.getString("savePath")+"textureImage.png");
    	   	if(texImg != null)
