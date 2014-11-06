@@ -4,17 +4,14 @@ import java.io.File;
 
 import processing.core.PGraphics;
 import processing.core.PImage;
-import processing.core.PShape;
 import processing.core.PVector;
 
 import com.catseye.CatsEyeController;
 import com.catseye.HandlerActions;
 import com.catseye.gui.components.ImageSelectionTool;
 import com.catseye.gui.components.ImageSelectionWidget;
-import com.catseye.gui.components.SvgSelectionTool;
 import com.catseye.gui.p5Plugs.ImageSelectionControls;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
-import com.catseye.util.svgUtils.SVGLoader;
 import com.quickdrawProcessing.display.DisplayPane;
 import com.quickdrawProcessing.display.Stage;
 
@@ -28,6 +25,7 @@ public class ImageSelectionPane extends DisplayPane {
 	
 	public ImageSelectionPane(PVector i_position, PVector i_size) {
 		super(i_position, i_size);
+		onlyRedrawWhileMouseOver(true);
 		
 		printWidth="1000";
 		printHeight="1000";
@@ -60,46 +58,21 @@ public class ImageSelectionPane extends DisplayPane {
 	    else {
 	  
 	      String path = selection.getAbsolutePath();
-	      String suffix = path.substring(path.length()-3);
+	      PImage chosenImage = Stage.p5.loadImage(path);
 	      
 	      removeChild(selector);
 	      
 	      int selectionType = selector == null || selector.getSelectionType() == ImageSelectionWidget.MARQUEE ? ImageSelectionWidget.MARQUEE : ImageSelectionWidget.TRIANGULAR;
-	      
-	      if (suffix.equals("svg")){
-	    	  PShape chosenShape = Stage.p5.loadShape(path);
-		      setImageTool(chosenShape, selectionType);	    	  
-	      }else{
-		      PImage chosenImage = Stage.p5.loadImage(path);
-		      setImageTool(chosenImage, selectionType);
-	      }	      
-	      
+	      setImageTool(chosenImage, selectionType);
 	      updateMarqueeToggle();
 	    }
 	  }
-
-	public void setImageTool(PShape i_shape, int i_marqueeType){
-		
-		if(selector != null)
-			selector.destroy();
-
-		removeChild(selector);
-		
-		selector = new SvgSelectionTool(new PVector(0,70), new PVector(getSize().x, getSize().y-70), i_shape, i_marqueeType);
-	      
-	    addChild(selector);
-	    
-	    isLoaded = true;
-	}
 	
 	public void setImageTool(PImage i_image, int i_marqueeType){
 		
-		if(selector != null)
-			selector.destroy();
-		
 		removeChild(selector);
 		
-		selector = new ImageSelectionTool(new PVector(0,70), new PVector(getSize().x, getSize().y-70), i_image, i_marqueeType);
+		selector = new ImageSelectionTool(new PVector(0,70), new PVector(size.x, size.y-70), i_image, i_marqueeType);
 	      
 	    addChild(selector);
 	    
