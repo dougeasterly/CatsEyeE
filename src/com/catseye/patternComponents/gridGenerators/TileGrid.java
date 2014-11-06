@@ -1,8 +1,18 @@
 package com.catseye.patternComponents.gridGenerators;
 
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
+
 import processing.core.*;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
 
 import com.catseye.CatsEye;
+import com.catseye.CatsEyeController;
+import com.catseye.gui.guiPanes.GridSelectPane;
+import com.catseye.gui.guiPanes.SavedStatePane;
 import com.catseye.patternComponents.polygonGenerators.Java2DNgonGenerator;
 import com.catseye.patternComponents.polygonGenerators.NGonGenerator;
 import com.catseye.patternComponents.polygonGenerators.P2DIrregularPolygonGenerator;
@@ -18,13 +28,14 @@ import com.catseye.patternComponents.polygonGenerators.P2DIrregularPolygonGenera
  *
  *---------------------------------------------------------------------------------------------*/
 import com.catseye.patternComponents.polygonGenerators.P2DNgonGenerator;
+import com.quickdrawProcessing.display.Stage;
 
 public class TileGrid {
 
   //----------------- CLASS VARIABLES---------------------
 
   protected PGraphics renderContext, gridContext;
-  protected PImage previewImage, gridPreviewImage;
+  protected PImage render, gridImage;
   protected PImage textureImage; 
   protected PImage maskImage;
 
@@ -35,35 +46,34 @@ public class TileGrid {
   protected float missingOdds = 0; //a number between 0 and 1 that represents a random chance a tile will be missing 
   protected float cellRadius;
   protected PVector cellSize;
-  protected PVector renderSize, previewSize;
+  protected PVector renderSize;
   protected PVector[] texCoords;
 
   protected boolean useMask;
 
-  protected String renderMode = PApplet.JAVA2D;
-
-
+  protected String renderMode = PApplet.P2D;  
+  
   //----------------------CONSTRUCTORS------------------------
 
   //Don't create a TileGrid directly, use a subclass (hexGrid, triGrid, squareGrid)
   protected TileGrid() {
 
     //default settings
-    renderSize = new PVector(CatsEye.p5.width, CatsEye.p5.height);
-    previewSize = new PVector(CatsEye.p5.width, CatsEye.p5. height);
+    renderSize = new PVector(Stage.p5.width, Stage.p5.height);
 
-    texCoords = new PVector[3];
+    texCoords = new PVector[4];
     texCoords[0] = new PVector(0, 1);
     texCoords[1] = new PVector(1, 1);
     texCoords[2] = new PVector(1, 0);
-
+    texCoords[3] = new PVector(1, 1);
+    
     cellRadius = 100;
-    previewImage = CatsEye.p5.createGraphics(100, 100);
-    ((PGraphics)previewImage).beginDraw();
-    ((PGraphics)previewImage).background(0, 0);
-    ((PGraphics)previewImage).endDraw();
+    render = Stage.p5.createGraphics(100, 100);
+    ((PGraphics)render).beginDraw();
+    ((PGraphics)render).background(0, 0);
+    ((PGraphics)render).endDraw();
 
-    textureImage = CatsEye.p5.createGraphics(100, 100);
+    textureImage = Stage.p5.createGraphics(100, 100);
     ((PGraphics)textureImage).beginDraw();
     ((PGraphics)textureImage).background(0, 0);
     ((PGraphics)textureImage).endDraw();
@@ -74,7 +84,6 @@ public class TileGrid {
 
     //default settings
     renderSize = i_toCopy.getRenderSize();
-    previewSize = i_toCopy.getPreviewSize();
     cellRadius = i_toCopy.getCellRadius();
     maskImage = i_toCopy.getMaskImage();
     useMask = i_toCopy.isUsingMask();
@@ -82,12 +91,12 @@ public class TileGrid {
     setTextureCoords(i_toCopy.getTextureCoords());
     renderMode = i_toCopy.getRenderMode();
 
-    previewImage = CatsEye.p5.createGraphics(100, 100);
-    ((PGraphics)previewImage).beginDraw();
-    ((PGraphics)previewImage).background(0, 0);
-    ((PGraphics)previewImage).endDraw();
+    render = Stage.p5.createGraphics(100, 100);
+    ((PGraphics)render).beginDraw();
+    ((PGraphics)render).background(0, 0);
+    ((PGraphics)render).endDraw();
 
-    textureImage = CatsEye.p5.createGraphics(100, 100);
+    textureImage = Stage.p5.createGraphics(100, 100);
     ((PGraphics)textureImage).beginDraw();
     ((PGraphics)textureImage).background(0, 0);
     ((PGraphics)textureImage).endDraw();
@@ -103,19 +112,20 @@ public class TileGrid {
   public void setTexture(PImage i_texture) {
     textureImage = i_texture.get();
   }
+  
 
   public void setTextureCoords(PVector[] i_texCoords) {
 
-    texCoords = new PVector[3];
-
-    if(i_texCoords != null && i_texCoords[0] != null && i_texCoords[1] != null && i_texCoords[2] != null){
-      texCoords[0] = i_texCoords[0].get();
-      texCoords[1] = i_texCoords[1].get();
-      texCoords[2] = i_texCoords[2].get();
-    }
+    texCoords = new PVector[i_texCoords.length];
+    for(int i = 0; i < i_texCoords.length; ++i)
+    	texCoords[i] = i_texCoords[i];
     
   } 
 
+  public void setRender(PImage i_render){
+	  render = i_render;
+  }
+  
   public void setMask(PImage i_mask) {
     maskImage = i_mask.get();
   }
@@ -134,52 +144,11 @@ public class TileGrid {
     missingOdds = i_odds;
   }
 
-  public void saveImage(String i_path) {
-    saveImage(i_path, ".png", false);
-  }
-
-  public void saveImage(String i_path, String i_fileSuffix, boolean i_saveWithGrid) {
-
-    if (!generated) {
-      generate();
-    }
-
-    PGraphics gfx = CatsEye.p5.createGraphics((int)renderSize.x, (int)renderSize.y);   
-    gfx.beginDraw();
-    gfx.noSmooth();
-    gfx.background(255,0);
-    gfx.image(renderContext,0,0);
-    
-    if(i_saveWithGrid){
-      regenerateGrid();
-      gfx.image(gridContext,0,0);
-    }
-      
-    gfx.save(i_path+(i_saveWithGrid ? "_GRID" : "")+i_fileSuffix);
-  }
-  
-  
-  public void saveTile(String i_path) {
-    PImage tempTile = getUnitImage();
-
-    //this is a hack for a bug that won't save images in JAVA2D mode if PImage.save() is used
-    PGraphics tile = CatsEye.p5.createGraphics(tempTile.width, tempTile.height);
-    tile.beginDraw();
-    tile.background(0,0);
-    tile.image(tempTile, 0, 0);
-    tile.endDraw();
-    //---------------------------------------------------------------------------------------
-    
-    tile.save(i_path + ".png");
-  }
 
   public void useMask(boolean i_useMask) {
     useMask = i_useMask;
   }
-
-  public void setPreviewSize(PVector i_size) {
-    previewSize = i_size;
-  }
+ 
 
   /***     
    *      This changes between rendering modes. The options are JAVA2D and P2D 
@@ -190,12 +159,8 @@ public class TileGrid {
 
   //-----getters-----
 
-  public PImage getPrintImage() {
-    return renderContext.get();
-  }
-
-  public PImage getPreviewImage() {  
-    return previewImage;
+  public PImage getRender() {
+    return render.get();
   }
 
   public PImage getGridImage() {
@@ -204,13 +169,87 @@ public class TileGrid {
       regenerateGrid();
     } 
 
-    return gridPreviewImage;
+    return gridImage;
+  }
+  
+  public PImage getTextureImage(){
+	  return textureImage;
+  }
+  
+  //this method can be overwritten if child classes need to be setup in order to generate grid preview
+  public PImage getMiniGridImage(PVector i_size) {
+	return getGridImage(); 
+  }
+  
+  
+  @SuppressWarnings("unchecked")
+  public static TileGrid getGridFromClassString(String i_subClassName){
+	 
+	  try{
+			 Class<TileGrid> myClass = (Class<TileGrid>)Class.forName(i_subClassName);
+	      	 Constructor<TileGrid> construct = myClass.getConstructor();
+	      	 TileGrid g = (TileGrid)construct.newInstance();
+	      	 
+	      	 return g;
+		  }
+		  catch(ClassNotFoundException e){System.out.println(e.getMessage());}
+		  catch(NoSuchMethodException e){System.out.println(e.getMessage());}
+		  catch(IllegalAccessException e){System.out.println(e.getMessage());}
+		  catch(InstantiationException e){System.out.println(e.getMessage());}
+		  catch(InvocationTargetException e){System.out.println(e.getMessage());}
+	  
+	  return null;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static TileGrid getGridFromClassString(String i_subClassName, TileGrid i_oldGrid){
+	 
+	  try{
+			 Class<TileGrid> tileGridClass = (Class<TileGrid>)Class.forName("com.catseye.patternComponents.gridGenerators.TileGrid");
+		     Class<TileGrid> myClass = (Class<TileGrid>)Class.forName(i_subClassName);
+	      	 
+			 Constructor<TileGrid> construct = myClass.getConstructor(tileGridClass);
+	      	 TileGrid g = (TileGrid)construct.newInstance(i_oldGrid);
+	      	 
+	      	 return g;
+		  }
+		  catch(ClassNotFoundException e){System.out.println(e.getMessage());}
+		  catch(NoSuchMethodException e){System.out.println(e.getMessage());}
+		  catch(IllegalAccessException e){System.out.println(e.getMessage());}
+		  catch(InstantiationException e){System.out.println(e.getMessage());}
+		  catch(InvocationTargetException e){System.out.println(e.getMessage());}
+	  
+	  return null;
+  }
+  
+
+  
+  public static PImage getGridMiniPreview(String i_subClassName, PVector i_size){
+		 
+      TileGrid g = getGridFromClassString(i_subClassName);
+      
+      if(g != null){
+    	g.setRenderMode(PApplet.JAVA2D);
+    	g.setCellRadius(i_size.x/4.0f);
+      	g.setRenderSize(i_size);
+      	return g.getMiniGridImage(i_size);
+      }else{
+	 
+		  PGraphics broken = Stage.p5.createGraphics((int) i_size.x, (int) i_size.y);
+		  broken.beginDraw();
+		  broken.stroke(255,255,0);
+		  
+		  for(int i = 0; i < PApplet.max(i_size.x, i_size.y)*2 ; i+=5)
+			  broken.line(0, i, i, 0);
+		  
+		  broken.endDraw();
+		  return broken; 
+      }  
   }
   
   public void regenerateGrid(){
     generate(true);
-    gridPreviewImage = gridContext.get();
-    gridPreviewImage.resize(gridContext.width >= gridContext.height ? (int)previewSize.x : 0, gridContext.height > gridContext.width ? (int)previewSize.y : 0);
+    gridImage = gridContext.get();
   }
 
   public PImage getUnitImage() {
@@ -218,24 +257,21 @@ public class TileGrid {
     if (generated)
       return ngonGenerator.getUnitImage();
     else
-      return CatsEye.p5.createImage(1, 1, PApplet.ARGB);
+      return Stage.p5.createImage(1, 1, PApplet.ARGB);
   }
 
   public PVector getRenderSize() {
     return renderSize.get();
   }
 
-  public PVector getPreviewSize() {
-    return previewSize.get();
-  }
-
   public PVector[] getTextureCoords() {
 
-    PVector[] copy = new PVector[3];
-    copy[0] = texCoords[0].get();
-    copy[1] = texCoords[1].get();
-    copy[2] = texCoords[2].get();
-
+    PVector[] copy = new PVector[texCoords.length];
+    
+    for(int i = 0; i < copy.length; ++i){
+    	copy[i] = texCoords[i].get();
+    }
+    
     return copy;
   } 
 
@@ -258,10 +294,160 @@ public class TileGrid {
   public String getRenderMode() {
     return renderMode;
   }
+  
+  public boolean getUseMask(){
+	  return useMask;
+  }
 
+  public JSONObject saveAsJSON(){
+	  return saveAsJSON(true);
+  }
+  
+  public JSONObject saveAsJSON(boolean i_doSave){
+	   
+	  if(generated){
+		   JSONObject json = new JSONObject();
+		   
+		   json.setString("class", this.getClass().getName());
+		   json.setInt("tab", GridSelectPane.getCurrentTab());
+		   
+		   json.setFloat("renderWidth", renderSize.x);
+		   json.setFloat("renderHeight", renderSize.y);
+		   json.setFloat("cellRadius", cellRadius);
+		   json.setFloat("missingOdds", missingOdds);
+		   json.setBoolean("useMask", useMask);
+		   json.setString("renderMode", renderMode);
+		   
+		   
+		   JSONArray texCoordsArr = new JSONArray();
+		   
+		   for(int i = 0; i < texCoords.length; ++i){
+			   JSONObject vec = new JSONObject();
+			   vec.setFloat("x", texCoords[i].x);
+			   vec.setFloat("y", texCoords[i].y);
+			   
+			   texCoordsArr.append(vec);
+		   }
+		   
+		   json.setJSONArray("texCoords", texCoordsArr);
+	
+		   String savePath = CatsEyeController.SAVE_PATH+"/saveData/"+(new Date().getTime())+"/";
+		   System.out.println(savePath);
+		   File savePathFile = new File(savePath) ;
+		   
+		   if(textureImage != null)
+			   textureImage.save(savePathFile.getAbsolutePath()+"/textureImage.png");
+		   
+		   if(maskImage != null)
+			   maskImage.save(savePathFile.getAbsolutePath()+"/maskImage.png");
+		   
+		   if(render != null){		   
+			   PImage previewImage = render.get();
+			   
+			   if(render.width > render.height)
+				   previewImage.resize(100, 0);
+			   else
+				   previewImage.resize(0, 100);
+			   
+			   previewImage.save(savePathFile.getAbsolutePath()+"/previewImage.png");
+		   
+		   }
+		   
+		   json.setString("savePath", savePathFile.getAbsolutePath()+"/");
+		   
+		   if(i_doSave){
+			   
+			   if(!savePathFile.exists())
+				   savePathFile.mkdirs();
+			   
+			   Stage.p5.saveJSONObject(json, savePathFile.getAbsolutePath()+"/saveData.json");
+		   }
+		   
+		   return json;
+	  }
+
+	  return null;
+	  
+  }
 
 
   //---------------------------------METHODS--------------------------------------
+  
+
+  public void saveImage(String i_path) {
+    saveImage(i_path, ".png", false);
+  }
+
+  public void saveImage(String i_path, String i_fileSuffix, boolean i_saveWithGrid) {
+
+    if (!generated) {
+      generate();
+    }
+
+    PGraphics gfx = Stage.p5.createGraphics((int)renderSize.x, (int)renderSize.y);   
+    gfx.beginDraw();
+    gfx.noSmooth();
+    gfx.background(255,0);
+    gfx.image(renderContext,0,0);
+    
+    if(i_saveWithGrid){
+      regenerateGrid();
+      gfx.image(gridContext,0,0);
+    }
+      
+    gfx.save(i_path+(i_saveWithGrid ? "_GRID" : "")+i_fileSuffix);
+  }
+  
+  
+  public void saveTile(String i_path) {
+    PImage tempTile = getUnitImage();
+
+    //this is a hack for a bug that won't save images in JAVA2D mode if PImage.save() is used
+    PGraphics tile = Stage.p5.createGraphics(tempTile.width, tempTile.height);
+    tile.beginDraw();
+    tile.background(0,0);
+    tile.image(tempTile, 0, 0);
+    tile.endDraw();
+    //---------------------------------------------------------------------------------------
+    
+    tile.save(i_path + ".png");
+  }
+  
+  public static TileGrid fromJson(JSONObject json){
+	  
+	  TileGrid g = getGridFromClassString(json.getString("class"));
+      
+      if(g != null){
+    	  	  
+   	   	g.setRenderSize(new PVector(json.getFloat("renderWidth"), json.getFloat("renderHeight")));
+   	   	g.setCellRadius(json.getFloat("cellRadius"));
+   	   	g.setMissingOdds(json.getFloat("missingOdds"));
+   	   	boolean useMaskBool = json.getBoolean("useMask");
+   	   	g.useMask(useMaskBool);
+   	   	g.setRenderMode(json.getString("renderMode"));
+   	   	
+   	   	JSONArray arr = json.getJSONArray("texCoords");
+   	   	PVector[] loadedTexCoords = new PVector[arr.size()];  
+   	   	for(int i = 0; i < arr.size(); ++i){
+   	   		JSONObject o = arr.getJSONObject(i);
+   	   		loadedTexCoords[i] = new PVector(o.getFloat("x"), o.getFloat("y"));
+   	   	}
+   	   	
+   	   	g.setTextureCoords(loadedTexCoords);
+   	   	
+   	   	PImage texImg = Stage.p5.loadImage(json.getString("savePath")+"textureImage.png");
+   	   	if(texImg != null)
+   	   		g.setTexture(texImg);
+   	   	
+   	   	PImage maskImg = Stage.p5.loadImage(json.getString("savePath")+"maskImage.png");
+   	   	if(maskImg != null)
+   	   		g.setMask(maskImg);
+   	   	
+      }
+	  
+	  return g;
+  }
+  
   public void generate() {
     generate(false);
   }
@@ -284,7 +470,7 @@ public class TileGrid {
     if (i_currentContext == gridContext) {
       ngonGenerator.drawOutlinesAt(i_x, i_y, i_currentContext);
     }
-    else if (CatsEye.p5.random(1) > missingOdds && !isMaskedAt(i_x, i_y)) {
+    else if (Stage.p5.random(1) > missingOdds && !isMaskedAt(i_x, i_y)) {
       ngonGenerator.drawAt(i_x, i_y, i_currentContext);
     }
   }
@@ -297,7 +483,7 @@ public class TileGrid {
   protected NGonGenerator setupRegularNgonGenerator(int cellSides){
    
     if (renderMode == PApplet.JAVA2D)
-      ngonGenerator = new Java2DNgonGenerator(cellSides, cellRadius, textureImage);
+      ngonGenerator = new Java2DNgonGenerator(cellSides, cellRadius, textureImage, texCoords);
     else
       ngonGenerator = new P2DNgonGenerator(cellSides, cellRadius, textureImage, texCoords);  
    
@@ -328,13 +514,13 @@ public class TileGrid {
    ***/
   protected PGraphics initGeneration(boolean i_outlines) {
     if (i_outlines) {
-      gridContext = CatsEye.p5.createGraphics((int)renderSize.x, (int)renderSize.y);
+      gridContext = Stage.p5.createGraphics((int)renderSize.x, (int)renderSize.y);
       gridContext.beginDraw();
       gridContext.background(0, 0);
       return gridContext;
     }
     else {
-      renderContext = CatsEye.p5.createGraphics((int)renderSize.x, (int)renderSize.y, renderMode);
+      renderContext = Stage.p5.createGraphics((int)renderSize.x, (int)renderSize.y, renderMode);
       renderContext.beginDraw();
       renderContext.background(0, 0);
       return renderContext;
@@ -356,8 +542,7 @@ public class TileGrid {
       renderContext.endDraw();
       generated = true;
 
-      previewImage = renderContext.get();
-      previewImage.resize(renderContext.width >= renderContext.height ? (int)previewSize.x : 0, renderContext.height > renderContext.width ? (int)previewSize.y : 0);
+      render = renderContext.get();
     }
     
   }

@@ -2,8 +2,11 @@ package com.catseye.patternComponents.polygonGenerators;
 
 
 import processing.core.*;
+
 import java.util.ArrayList;
+
 import com.catseye.CatsEye;
+import com.quickdrawProcessing.display.Stage;
 
 /*---------------------------------------------------------------------------------------------
  *
@@ -57,7 +60,7 @@ public class P2DIrregularPolygonGenerator extends NGonGenerator {
     
     if(!i_outlines){
       
-      polygon = CatsEye.p5.createShape();
+      polygon = Stage.p5.createShape();
       polygon.beginShape(PApplet.TRIANGLE_FAN);
       polygon.noStroke();
       polygon.textureMode(PApplet.NORMAL);
@@ -67,9 +70,9 @@ public class P2DIrregularPolygonGenerator extends NGonGenerator {
       polygon.endShape();
       
     }else{
-      outlines = CatsEye.p5.createShape(PApplet.GROUP);
+      outlines = Stage.p5.createShape(PApplet.GROUP);
       
-      PShape outer = CatsEye.p5.createShape();
+      PShape outer = Stage.p5.createShape();
       outer.beginShape();
       outer.stroke(0,0,255);
       outer.strokeWeight(1);
@@ -77,7 +80,7 @@ public class P2DIrregularPolygonGenerator extends NGonGenerator {
       constructPolygon(outer, i_corners, i_centroid);
       outer.endShape();
 
-      PShape inner = CatsEye.p5.createShape();
+      PShape inner = Stage.p5.createShape();
       inner.beginShape(PApplet.TRIANGLE_FAN);
       inner.stroke(255, 0, 0);
       inner.strokeWeight(1);
@@ -111,11 +114,11 @@ public class P2DIrregularPolygonGenerator extends NGonGenerator {
 
   private PImage createTesselationUnit(PImage i_gfx, PVector[] i_texCoords) {
 
-    PGraphics out = CatsEye.p5.createGraphics((int)UnitPreview.SIZE+10, (int)UnitPreview.SIZE+10, PApplet.P2D);
+    PGraphics out = Stage.p5.createGraphics((int)UnitPreview.SIZE+10, (int)UnitPreview.SIZE+10, PApplet.P2D);
     out.beginDraw();
     out.background(0, 0);
 
-    PShape tri = CatsEye.p5.createShape();
+    PShape tri = Stage.p5.createShape();
 
     tri.beginShape(PApplet.TRIANGLES);
     tri.noStroke();

@@ -1,7 +1,9 @@
 package com.catseye.patternComponents.polygonGenerators;
 
 import processing.core.*;
+
 import com.catseye.CatsEye;
+import com.quickdrawProcessing.display.Stage;
 
 /*---------------------------------------------------------------------------------------------
 *
@@ -34,7 +36,7 @@ public class PatternTriangle {
     int canvasWidth  = (int)(maxX-minX);
     int canvasHeight = (int)(maxY-minY);
 
-    mask = CatsEye.p5.createGraphics(canvasWidth+2, canvasHeight+2);
+    mask = Stage.p5.createGraphics(canvasWidth+2, canvasHeight+2);
 
     canvas = texture.get();
     canvas.resize(canvasWidth+2, canvasHeight+2);

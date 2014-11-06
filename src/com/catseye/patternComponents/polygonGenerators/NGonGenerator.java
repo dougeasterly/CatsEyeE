@@ -51,7 +51,7 @@ public class NGonGenerator {
   public PImage getUnitImage() {
     /*Override this function in a subclass, 
     this only returns a stub blank image*/
-    return CatsEye.p5.createImage(1, 1, PApplet.RGB);
+    return null;
   }
   
   

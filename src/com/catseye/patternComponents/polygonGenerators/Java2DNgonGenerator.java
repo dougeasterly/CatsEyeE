@@ -8,12 +8,18 @@ public class Java2DNgonGenerator extends NGonGenerator {
   private PatternTriangle unitPreview;
   private PMatrix2D[] transforms;
 
-  public Java2DNgonGenerator(int i_segments, float i_radius, PImage i_gfx) 
+  public Java2DNgonGenerator(int i_segments, float i_radius, PImage i_gfx, PVector[] i_texCoords) 
   {
     super(i_segments, i_radius);
     float theta = PApplet.TWO_PI/i_segments;
 
-    unit = createUnit(i_radius, i_gfx, theta, true);
+    int a = (int)(i_texCoords[0].x*i_gfx.width);
+    int b = (int)(i_texCoords[0].y*i_gfx.height);
+    int c = (int)(Math.abs(i_texCoords[2].x-i_texCoords[0].x)*i_gfx.width);
+    int d = (int)(Math.abs(i_texCoords[2].y-i_texCoords[0].y)*i_gfx.height);
+    PImage tex = i_gfx.get(a, b, c, d);
+    	
+    unit = createUnit(i_radius, tex, theta, true);
     unitPreview = createUnit(UnitPreview.SIZE, i_gfx, theta, false);
 
     transforms = new PMatrix2D[i_segments*2];

@@ -1,33 +1,25 @@
 package com.catseye;
 
-import com.catseye.gui.GUI;
-import com.catseye.patternComponents.*;
+import com.quickdrawProcessing.processing.QuickdrawProcessing;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PVector;
 
-public class CatsEye extends PApplet{
+public class CatsEye extends QuickdrawProcessing{
 
-	private static final long serialVersionUID = 9088465710966395469L;
-
-	public static PApplet p5;
+	CatsEyeController controller;
 	
-	public GUI gui;
-	
-	public void setup(){
-	  
-	  p5 = this;
-		
-	  size(1000,1000, P2D);
-	 
-	  gui = new GUI();
-	  
+	public static void main(String args[]) {
+		PApplet.main(new String[] { "--present", "com.catseye.CatsEye"});
 	}
 	
-	public void draw(){
+	public void startQuickdraw(){	   
+		controller = new CatsEyeController(new PVector(0,0), new PVector(width, height));
+		mainStage.addChild(controller);
+	}
 	 
-	  background(180);
-	  gui.drawGui();
-	
+
+	public void drawQuickdraw(){
 	}
 
 }
