@@ -25,10 +25,10 @@ import com.catseye.patternComponents.polygonGenerators.P2DIrregularPolygonGenera
 
 public class VoronoiDelaunayGrid extends TileGrid {
 
-  public final int VORONOI = 0;
-  public final int DELAUNAY = 1; 
+  public static final int VORONOI = 0;
+  public static final int DELAUNAY = 1; 
   
-  private int type;
+  protected int type;
   
   Voronoi voronoi;
   PolygonClipper2D clip;
@@ -46,7 +46,7 @@ public class VoronoiDelaunayGrid extends TileGrid {
     init();
   }
 
-  private void init() {
+  protected void init() {
     voronoi = new Voronoi();
     type = VORONOI;
     renderMode = PApplet.P2D;
@@ -57,6 +57,12 @@ public class VoronoiDelaunayGrid extends TileGrid {
     ypos= new BiasedFloatRange(-renderSize.x*0.5f, renderSize.y*1.5f, renderSize.y/2, 0.222f);
     
 
+  }
+  
+  public PImage getMiniGridImage(PVector i_size) {
+	  init();
+	  addRandomPoints(40);
+	  return getGridImage(); 
   }
   
   public void setRenderMode(String i_mode) {
@@ -71,8 +77,13 @@ public class VoronoiDelaunayGrid extends TileGrid {
     voronoi.addPoint(new Vec2D(i_pt.x, i_pt.y));
   }
 
+  public void addPoints(ArrayList<PVector> i_points){
+	  for(PVector vec : i_points){
+		  addPoint(vec);
+	  }
+  }
 
-  public void addRandomPoints(int i_count, float i_rangeX, float i_rangeY) {
+  public void addRandomPoints(int i_count) {
     for (int i = 0; i < i_count; ++i) {
       addPoint(new PVector(xpos.pickRandom(), ypos.pickRandom()));
     }

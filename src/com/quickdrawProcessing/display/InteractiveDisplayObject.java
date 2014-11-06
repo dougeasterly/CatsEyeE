@@ -69,15 +69,29 @@ public abstract class InteractiveDisplayObject{
 		return redraw && (!redrawWMO || (redrawWMO && mouseIsOver));
 	}
 	
+	public void redrawNow(){
+
+		PGraphics context = parent == Stage.stage || this == Stage.stage ? Stage.getStageContext() : parent.getCacheContext();
+		InteractiveDisplayObject par = parent;
+		
+		while(context == null){
+			par = par.parent;
+			context = par == Stage.stage ? Stage.getStageContext() : parent.getCacheContext();
+		}
+		
+		PGraphics currentContext = preDraw(context); 
+		draw(currentContext);
+		drawChildren(currentContext);
+		drawOverChildren(currentContext);
+		postDraw(currentContext);
+		
+	}
+	
 	public InteractiveDisplayObject getObjectAtPoint(PVector i_position){
 		return getChildAtPoint(i_position);
 	}
 	
 	public PGraphics getCacheContext(){
-		
-		if(canvas == null)
-			System.out.println("you must call cacheAsBitmap(true) to set up the drawing context");
-		
 		return canvas;
 	}
 	
@@ -278,7 +292,7 @@ public abstract class InteractiveDisplayObject{
 		i_drawContext.rect(0, 0, size.x, size.y);
 	}
 	
-	protected PGraphics preDraw(PGraphics i_drawContext){
+	private PGraphics preDraw(PGraphics i_drawContext){
 		
 		PGraphics currContext = cacheAsBitmap() ? canvas : i_drawContext;
 		
@@ -302,15 +316,9 @@ public abstract class InteractiveDisplayObject{
 	}
 
 	
-	protected void postDraw(PGraphics i_context){
-		postDraw(i_context, true);
-	}
-	
-	
-	protected void postDraw(PGraphics i_context, boolean i_doDrawChildren){
+	private void postDraw(PGraphics i_context){
 		
-		if(i_doDrawChildren)
-			drawChildren(i_context);
+		drawChildren(i_context);
 		
 		i_context.popMatrix();
 
@@ -325,9 +333,14 @@ public abstract class InteractiveDisplayObject{
 				
 		for(InteractiveDisplayObject child : children){
 			
+			
+			
 			if(child.redraw()){
 				child.update();
-				child.draw(i_context);	
+				PGraphics context = child.preDraw(i_context);
+				child.draw(context);
+				child.drawOverChildren(context);
+				child.postDraw(context);
 			}
 			
 			if(child.cacheAsBitmap()){
@@ -378,10 +391,9 @@ public abstract class InteractiveDisplayObject{
 	
 	public void update(){};
 	
-	public void draw(PGraphics i_context){
-		PGraphics currContext = preDraw(i_context);
-		postDraw(currContext);
-	}
+	public void draw(PGraphics i_context){}
+	
+	public void drawOverChildren(PGraphics i_context){}
 	
 	public abstract boolean isOver(PVector i_position);
 	

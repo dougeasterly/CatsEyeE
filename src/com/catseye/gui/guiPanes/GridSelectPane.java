@@ -10,6 +10,7 @@ import com.catseye.CatsEye;
 import com.catseye.gui.components.GridSelectionButton;
 import com.catseye.gui.components.selectionPanel.GridSelectionPanel;
 import com.catseye.gui.components.selectionPanel.StandardSelectionPanel;
+import com.catseye.gui.components.selectionPanel.VoronoiDelaunaySelectionPanel;
 import com.catseye.gui.p5Plugs.GridSelectionControls;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.catseye.patternComponents.gridGenerators.regularGrids.HexGrid;
@@ -35,9 +36,10 @@ public class GridSelectPane extends DisplayPane {
 	public GridSelectPane(PVector i_position, PVector i_size) {
 		super(i_position, i_size);
 		onlyRedrawWhileMouseOver(true);
-		currentGrid = new HexGrid();
-		gridSelections = new GridSelectionPanel[1];
+		gridSelections = new GridSelectionPanel[2];
 		gridSelections[0] = new StandardSelectionPanel(new PVector(0,200), new PVector(size.x, size.y-100));
+		gridSelections[1] = new VoronoiDelaunaySelectionPanel(new PVector(0,200), new PVector(size.x, size.y-100));
+		drawBorder = true;
 	}
 	
 	public void setGrid(TileGrid i_grid){
@@ -47,16 +49,15 @@ public class GridSelectPane extends DisplayPane {
 	
 	@Override
 	public void draw(PGraphics i_context){
-		PGraphics context = preDraw(i_context);
-		context.background(clearColor);
-		postDraw(context);
+		i_context.background(clearColor);
 	}
 	
 	@Override
 	public void addedToStage(){
-		addChild(gridSelections[0]);
+		addChild(gridSelections[1]);
 		gridCtls = new GridSelectionControls(this, Stage.cp5);
-		draw();
+		currentGrid = gridSelections[1].getGrid();
+		redrawNow();
 	}
 	
 
@@ -67,14 +68,7 @@ public class GridSelectPane extends DisplayPane {
 	@Override
 	public void actionHook(InteractiveDisplayObject child, int i_action){
 		
-		if(currentButton != null)
-			currentButton.current(false);
-		
-		GridSelectionButton btn = (GridSelectionButton) child;
-		currentButton = btn;
-		currentButton.current(true);
-		
-		currentGrid = TileGrid.getGridFromClassString(btn.getType(), currentGrid);
+	
 		
 	}
 	

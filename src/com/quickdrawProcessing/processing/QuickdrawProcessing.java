@@ -12,6 +12,7 @@ public class QuickdrawProcessing extends PApplet {
 	public static final long serialVersionUID = 1363560403441783735L;
 	
 	public static Stage mainStage;
+	public static Frame frameHack;
 
 	public void startQuickdraw(){};
 	public void drawQuickdraw(){};
@@ -24,6 +25,7 @@ public class QuickdrawProcessing extends PApplet {
         for (Frame frame : frames) {
             frame.setMenuBar(null);
             frame.pack();
+            frameHack = frame;
         }
         
     }
@@ -33,7 +35,7 @@ public class QuickdrawProcessing extends PApplet {
 	  size(displayWidth, displayHeight, P2D);
 	  mainStage = new Stage(this);
 	  System.out.println("started");
-	  
+	
 	  startQuickdraw();
 	}
 	

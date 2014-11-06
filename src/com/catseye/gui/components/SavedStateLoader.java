@@ -55,16 +55,14 @@ public class SavedStateLoader extends InteractiveDisplayObject{
 	
 	@Override
 	public void draw(PGraphics i_context){
-		PGraphics context = preDraw(i_context);
-		context.image(miniPreview, 0, 0);
+		i_context.image(miniPreview, 0, 0);
 		
 		if(mouseIsOver && !deleteBtn.mouseIsOver()){
-			context.fill(255, 255, 200, 50);
-			context.noStroke();
-			context.rect(0, 0, size.x, size.y);
+			i_context.fill(255, 255, 200, 50);
+			i_context.noStroke();
+			i_context.rect(0, 0, size.x, size.y);
 		}
 		
-		postDraw(context);
 	}
 	
 	@Override
