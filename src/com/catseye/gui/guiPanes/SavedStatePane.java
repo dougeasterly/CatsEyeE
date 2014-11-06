@@ -32,7 +32,7 @@ public class SavedStatePane extends DisplayPane{
 		saveSpace = new PVector(20, 20);
 		
 		onlyRedrawWhileMouseOver(true);
-		drawBorder = true;
+		draw();
 	}
 	
 	public void addSave(JSONObject jsonString){
@@ -41,19 +41,20 @@ public class SavedStatePane extends DisplayPane{
 		ldr.setInteractionHandler(interactionHandler);
 		addChild(ldr);
 		saves.add(ldr);
-		redrawNow();
+		draw();
 	}
 	
 	@Override
 	public void addedToStage(){
 		loadFiles();
-		redrawNow();
 	}
 	
 	public void draw(PGraphics i_context){
-		i_context.background(180);
-		i_context.fill(0);
-		i_context.text("Saved files ", 20, 15);
+		PGraphics context = preDraw(i_context);
+		context.background(180);
+		context.fill(0);
+		context.text("Saved files ", 20, 15);
+		postDraw(context);
 	}
 
 	public void loadFiles() {

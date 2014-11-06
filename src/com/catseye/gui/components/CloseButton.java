@@ -14,19 +14,21 @@ public class CloseButton extends InteractiveDisplayObject {
 	
 	@Override
 	public void draw(PGraphics i_context){
+		PGraphics context = preDraw(i_context);
 		
 			if(mouseIsOver)
-				i_context.fill(255,150,150);				
+				context.fill(255,150,150);				
 			else
-				i_context.fill(255,0,0);
+				context.fill(255,0,0);
 			
-			i_context.noStroke();
-			i_context.rect(0, 0, size.x, size.y);
-			i_context.stroke(255);
-			i_context.strokeWeight(3);
-			i_context.line(2, 2, size.x-2, size.y-2);
-			i_context.line(size.x-2, 2, 2, size.y-2);
+			context.noStroke();
+			context.rect(0, 0, size.x, size.y);
+			context.stroke(255);
+			context.strokeWeight(3);
+			context.line(2, 2, size.x-2, size.y-2);
+			context.line(size.x-2, 2, 2, size.y-2);
 			
+		postDraw(context);
 	}
 	
 	@Override

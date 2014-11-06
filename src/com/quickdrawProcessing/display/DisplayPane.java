@@ -5,8 +5,6 @@ import processing.core.PVector;
 
 public class DisplayPane extends InteractiveDisplayObject {
 	
-	protected boolean drawBorder;
-	
 	public DisplayPane(PVector i_position, PVector i_size){
 		super(i_position, i_size);
 		cacheAsBitmap(true);
@@ -19,24 +17,20 @@ public class DisplayPane extends InteractiveDisplayObject {
 
 	@Override
 	public void draw(PGraphics i_context){
-		i_context.clear();
+		
+		PGraphics context = preDraw(i_context);
+		context.clear();
+		postDraw(context);
+		
 	}
 	
-	@Override
-	public void drawOverChildren(PGraphics i_context){
-		if(drawBorder){
-			i_context.stroke(0);
-			i_context.strokeWeight(1);
-			i_context.fill(255,0,0);
-			i_context.noFill();
-			i_context.rect(0,0,size.x,size.y);
-			i_context.stroke(100);
-			i_context.line(1, 1, size.x-1, 1);
-			i_context.line(size.x-1, 1, size.x-1, size.y);
-			i_context.stroke(130);
-			i_context.line(1, 2, size.x-2, 2);
-			i_context.line(size.x-2, 2, size.x-2, size.y);
-		}
+	//call from draw method of child classes
+	public void drawBorder(PGraphics i_context){
+		i_context.noFill();
+		i_context.stroke(0);
+		i_context.strokeWeight(1);
+		i_context.rect(0,0,size.x,size.y);
+		i_context.rect(2,2,size.x-4,size.y-4);
 	}
 	
 	

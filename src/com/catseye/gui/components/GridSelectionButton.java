@@ -55,13 +55,16 @@ public class GridSelectionButton extends DisplayPane{
 	@Override
 	public void draw(PGraphics i_context){
 		
-		i_context.clear();
-		i_context.image(buttonImage, 0, 0);
+		PGraphics context = preDraw(i_context);
+		
+		context.clear();
+		context.image(buttonImage, 0, 0);
 		
 		if(mouseIsOver || isCurrent){
-			i_context.image(highlight, 0, 0);
+			context.image(highlight, 0, 0);
 		}
 		
+		postDraw(context);
 	}
 	
 	public void current(boolean i_isCurrent){

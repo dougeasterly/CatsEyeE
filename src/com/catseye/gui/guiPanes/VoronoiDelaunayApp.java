@@ -161,6 +161,7 @@ public class VoronoiDelaunayApp extends GUIApp {
 
 
   //--------------------------------------------ACTUAL GUI CREATION--------------------------------------------------------
+
   private void createGuiControls() {
     this.cp5 = new ControlP5(this);
 

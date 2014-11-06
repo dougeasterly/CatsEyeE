@@ -94,16 +94,18 @@ public class MarqueeSelectionWidget extends ImageSelectionWidget {
 	}
 	
 	public void draw(PGraphics i_context){		
+		PGraphics context = preDraw(i_context);
 		
 		if(!selected)
-			i_context.noFill();
+			context.noFill();
 		else
-			i_context.fill(255,255,150,50);
+			context.fill(255,255,150,50);
 		
-		i_context.strokeWeight(EDGE_SIZE);
-		i_context.stroke(0);
-		i_context.rect(TL.x, TL.y, (BR.x-TL.x), (BR.y-TL.y));
-		
+		context.strokeWeight(EDGE_SIZE);
+		context.stroke(0);
+		context.rect(TL.x, TL.y, (BR.x-TL.x), (BR.y-TL.y));
+
+		postDraw(context);
 	}
 	
 	public void actionHook(InteractiveDisplayObject i_child, int label){

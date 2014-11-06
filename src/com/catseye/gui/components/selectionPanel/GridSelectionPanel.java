@@ -6,7 +6,6 @@ import processing.core.*;
 import com.catseye.gui.components.GridSelectionButton;
 import com.catseye.patternComponents.gridGenerators.TileGrid;
 import com.quickdrawProcessing.display.DisplayPane;
-import com.quickdrawProcessing.display.InteractiveDisplayObject;
 
 
 public class GridSelectionPanel extends DisplayPane{
@@ -14,7 +13,6 @@ public class GridSelectionPanel extends DisplayPane{
 	public static final PVector BUTTONSIZE = new PVector(100,100);
 	public static final PVector BUTTONSPACE = new PVector(20,20);
 
-	protected GridSelectionButton currentButton;
 	
 	protected PVector scrollOffset;
 	protected int columns;
@@ -24,12 +22,11 @@ public class GridSelectionPanel extends DisplayPane{
 	protected GridSelectionButton selected_btn;
 	protected DisplayPane buttonPane; 
 	
-	protected TileGrid currentGrid;
-	
 	
 	public GridSelectionPanel(PVector i_position, PVector i_size){
 		
 		super(i_position, i_size);
+		
 		buttonPane  = new DisplayPane(new PVector(0,0), i_size);
 		buttonCount = 0;
 		columns = PApplet.floor((size.x-BUTTONSPACE.x) / (BUTTONSIZE.x+BUTTONSPACE.x));
@@ -38,7 +35,6 @@ public class GridSelectionPanel extends DisplayPane{
 
 	@Override
 	public void addedToStage(){
-		drawBorder = false;
 		addChild(buttonPane);
 	}
 	
@@ -57,30 +53,14 @@ public class GridSelectionPanel extends DisplayPane{
 				TileGrid.getGridMiniPreview(i_gridClassName, BUTTONSIZE)
 				);
 		
-		button.setInteractionHandler(this);
+		button.setInteractionHandler(parent);
 		
 		++buttonCount;
 		
 		buttonPane.addChild(button);
 
 	}
-	
-	@Override
-	public void actionHook(InteractiveDisplayObject i_child, int i_action){
-		
-		if(currentButton != null)
-			currentButton.current(false);
-		
-		GridSelectionButton btn = (GridSelectionButton) i_child;
-		currentButton = btn;
-		currentButton.current(true);
-		
-		currentGrid = TileGrid.getGridFromClassString(btn.getType(), currentGrid);
-	}
 
-	public TileGrid getGrid(){
-		return currentGrid;
-	}
 //	public void scroll(PVector i_amount){
 //		
 //		int rows = PApplet.ceil(buttonCount/(columns+0.0f));
