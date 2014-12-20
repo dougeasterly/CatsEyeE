@@ -1,0 +1,118 @@
+nav ul li {
+	display: inline;
+	padding-right: 25px;
+}
+
+
+.patternSlide{
+	width: 100%;
+}
+
+#slideshow{
+	height: 540px !important;
+}
+
+#heroText{
+	z-index: 30;
+	font-size: 55px;
+	background-color: white;
+	display: inline;
+	padding: 20px;
+	line-height: 85px;
+	font-weight: 400;
+}
+
+#heroBox{
+	position: relative;
+	width: 960px;
+max-width: 100%;
+min-width: 768px;
+margin-left: auto;
+margin-right: auto;
+top: -345px;
+z-index: 50;
+margin-bottom: -170px;
+}
+
+
+
+h1, h2, h3, h4, h5{
+	color:#82c0d8;
+}
+
+h3{
+	margin-bottom: 50px;
+}
+
+h3, h4{
+	text-align: center;
+}
+
+h4{
+	font-weight: 300;
+}
+.nav-bar{
+	float: right;
+	margin: 0;
+}
+
+nav ul li{
+	line-height: 100px;
+	text-decoration: none;
+}
+
+a{
+	color:	#82c0d8;
+}
+
+
+a:hover{
+	opacity: 0.5;
+	color:	#82c0d8;
+
+}
+
+a h1:hover{
+	opacity: 0.5;
+}
+
+nav{
+	height: 100px;
+}
+nav a h1{
+	width: 400px;
+	float: left;
+	font-size: 35px;
+	font-weight: 300;
+	line-height: 100px;
+	margin: 0;
+}
+
+section{
+	margin-top: 50px;
+	margin-bottom: 50px;
+}
+
+i{
+	color: #82c0d8;
+}
+
+
+#install{
+	background-color: rgba(0,0,0,0.7);
+border-radius: 10px;
+padding: 40px;
+}
+
+#install p{
+	color: white;
+}
+
+.icon-centered{
+	width: 100%;
+}
+
+.icon-centered i{
+	width: 100%;
+	text-align: center;
+}
