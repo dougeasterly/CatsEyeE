@@ -70,7 +70,8 @@ public class GridSelectionControls extends Cp5Plug{
 	
 	private void setupGlobalControls(InteractiveDisplayObject i_object){
 	 
-	  
+	  int buttonSize = (int)(i_object.getSize().x/2-80)/3;
+		
 	  useMaskControl = cp5.addToggle("useMask")
 	  	.setPosition(20, 90)
 	  	.setSize(20, 20);
@@ -78,14 +79,14 @@ public class GridSelectionControls extends Cp5Plug{
 	  i_object.addCP5Control(useMaskControl, "useMask");
 
 	  maskImageButton = cp5.addButton("loadMask")
-		.setPosition(80, 60)
-		.setSize(80, 80);
+		.setPosition(buttonSize+40, 100-buttonSize/2)
+		.setSize(buttonSize, buttonSize);
 	  
 	  i_object.addCP5Control(maskImageButton, "loadMask");
 	  
 	  oddsControl = cp5.addSlider("missing odds")
-	     .setPosition(180, 90)
-	     .setSize(80, 20)
+	     .setPosition(buttonSize*2+60, 90)
+	     .setSize(buttonSize, 20)
 	     .setRange(0, 1);
 	  
 	  i_object.addCP5Control(oddsControl, "missingOdds");
@@ -106,26 +107,32 @@ public class GridSelectionControls extends Cp5Plug{
 	}
 	
 	private void setupVoronoiDelaunayControls(InteractiveDisplayObject i_object){
+		
+		float buttonSize = (i_object.getSize().x/2.0f-60)/2;
+		
 		vDselection= cp5.addRadioButton("VoronoiDelaunaySelection")
-         .setPosition(i_object.getSize().x/2 + i_object.getSize().x/4 - 110, 60)
+         .setPosition(i_object.getSize().x/2 + i_object.getSize().x/4 - 50, 70)
          .setSize(20,20)
          .setItemsPerRow(2)
-         .setSpacingColumn(130)
+         .setSpacingColumn(60)
          .addItem("Voronoi",VoronoiDelaunayGrid.VORONOI)
          .addItem("Delaunay",VoronoiDelaunayGrid.DELAUNAY)
          .activate(0);
 		
 		i_object.addCP5Control(vDselection, "voronoiDelaunaySwitch");
 		
+		
+		
+		
 		addRandomVDPoints = cp5.addButton("random")
-			.setPosition(i_object.getSize().x/2 + i_object.getSize().x/4 - 110, 100)
-			.setSize(80,20);
+			.setPosition(i_object.getSize().x/2 + 20, 110)
+			.setSize((int)buttonSize,20);
 		
 		i_object.addCP5Control(addRandomVDPoints, "addRandomVDPoints");
 		
 		clearVD = cp5.addButton("clear")
-			.setPosition(i_object.getSize().x/2 + i_object.getSize().x/4 - 110 + 150, 100)
-			.setSize(80,20);
+			.setPosition(i_object.getSize().x/2 + buttonSize+40, 110)
+			.setSize((int)buttonSize,20);
 			
 		i_object.addCP5Control(clearVD, "clearVD");
 		
