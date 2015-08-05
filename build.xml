@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="build" name="CatsEye">
+  <path id="lib">
+    <fileset dir="lib" includes="*.jar"/>
+  </path>
+
+  <target name="compile">
+    <mkdir dir="bin"/>
+    <javac srcdir="src" destdir="bin" classpathref="lib" includeantruntime="false"/>
+    <echo message="Completed compilation"/>
+  </target>
+
+  <target name="build" depends="compile">
+    <jar destfile="bin/CatsEye.jar">
+      <manifest>
+        <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+        <attribute name="Rsrc-Main-Class" value="com.catseye.CatsEye"/>
+        <attribute name="Class-Path" value="."/>
+        <attribute name="Rsrc-Class-Path" value="./ colorutils.jar controlP5.jar core.jar gluegen-rt-natives-linux-amd64.jar gluegen-rt-natives-linux-armv6hf.jar gluegen-rt-natives-linux-i586.jar gluegen-rt-natives-macosx-universal.jar gluegen-rt-natives-windows-amd64.jar gluegen-rt-natives-windows-i586.jar gluegen-rt.jar jogl-all-natives-linux-amd64.jar jogl-all-natives-linux-armv6hf.jar jogl-all-natives-linux-i586.jar jogl-all-natives-macosx-universal.jar jogl-all-natives-windows-amd64.jar jogl-all-natives-windows-i586.jar jogl-all.jar toxiclibs_p5.jar toxiclibscore.jar"/>
+      </manifest>
+      <zipfileset src="lib/jar-in-jar-loader.zip"/>
+      <fileset dir="bin" includes="**/*.class"/>
+      <zipfileset dir="lib" includes="colorutils.jar"/>
+      <zipfileset dir="lib" includes="controlP5.jar"/>
+      <zipfileset dir="lib" includes="core.jar"/>
+      <zipfileset dir="lib" includes="gluegen-rt-natives-linux-amd64.jar"/>
+      <zipfileset dir="lib" includes="gluegen-rt-natives-linux-armv6hf.jar"/>
+      <zipfileset dir="lib" includes="gluegen-rt-natives-linux-i586.jar"/>
+      <zipfileset dir="lib" includes="gluegen-rt-natives-macosx-universal.jar"/>
+      <zipfileset dir="lib" includes="gluegen-rt-natives-windows-amd64.jar"/>
+      <zipfileset dir="lib" includes="gluegen-rt-natives-windows-i586.jar"/>
+      <zipfileset dir="lib" includes="gluegen-rt.jar"/>
+      <zipfileset dir="lib" includes="jogl-all-natives-linux-amd64.jar"/>
+      <zipfileset dir="lib" includes="jogl-all-natives-linux-armv6hf.jar"/>
+      <zipfileset dir="lib" includes="jogl-all-natives-linux-i586.jar"/>
+      <zipfileset dir="lib" includes="jogl-all-natives-macosx-universal.jar"/>
+      <zipfileset dir="lib" includes="jogl-all-natives-windows-amd64.jar"/>
+      <zipfileset dir="lib" includes="jogl-all-natives-windows-i586.jar"/>
+      <zipfileset dir="lib" includes="jogl-all.jar"/>
+      <zipfileset dir="lib" includes="toxiclibs_p5.jar"/>
+      <zipfileset dir="lib" includes="toxiclibscore.jar"/>
+    </jar>
+    <echo message="Completed build"/>
+  </target>
+</project>
